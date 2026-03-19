@@ -1,0 +1,73 @@
+{
+  "title": "Invoices Pipeline",
+  "uid": "invoices-pipeline",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "SpoolDir - Source Record Write Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "rate(kafka_connect_source_task_metrics_source_record_write_total[1m])",
+          "legendFormat": "{{connector}} task={{task}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "SpoolDir - Poll Batch Size (avg)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "kafka_connect_source_task_metrics_poll_batch_avg_records",
+          "legendFormat": "{{connector}} task={{task}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Connector Task Errors",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "rate(kafka_connect_task_error_metrics_total_errors_logged[1m])",
+          "legendFormat": "{{connector}} task={{task}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Connector Status",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "kafka_connect_connector_task_metrics_running_ratio",
+          "legendFormat": "{{connector}} task={{task}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Container Logs",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "expr": "{job=\"docker\"}"
+        }
+      ]
+    }
+  ]
+}
