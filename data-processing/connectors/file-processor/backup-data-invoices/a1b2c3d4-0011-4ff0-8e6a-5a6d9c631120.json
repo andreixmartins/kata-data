@@ -1,0 +1,34 @@
+{
+  "invoiceId": "2026-0011",
+  "issueDate": "2026-03-10",
+  "dueDate": "2026-03-17",
+  "currency": "USD",
+  "status": "PENDING",
+  "seller": {
+    "ssn": "123-98-7654",
+    "email": "billing@northstar.com"
+  },
+  "buyer": {
+    "ssn": "567-89-0123",
+    "email": "accounts@eastend.com"
+  },
+  "items": [
+    {
+      "itemId": "021",
+      "description": "SEO Optimization",
+      "quantity": 6,
+      "unitPrice": 200.00
+    },
+    {
+      "itemId": "022",
+      "description": "Content Writing",
+      "quantity": 10,
+      "unitPrice": 50.00
+    }
+  ],
+  "subtotal": 1700.00,
+  "discount": 100.00,
+  "total": 1600.00,
+  "paymentMethod": "BANK_TRANSFER",
+  "notes": "SEO report attached."
+}

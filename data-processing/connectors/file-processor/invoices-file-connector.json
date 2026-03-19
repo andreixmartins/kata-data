@@ -1,0 +1,15 @@
+{
+  "name": "invoices-file-source",
+  "config": {
+    "connector.class": "com.github.jcustenborder.kafka.connect.spooldir.SpoolDirSchemaLessJsonSourceConnector",
+    "tasks.max": "1",
+    "topic": "sales.raw.invoice.files.v1",
+    "input.path": "/data/invoices",
+    "input.file.pattern": ".*\\.json",
+    "finished.path": "/data/processed",
+    "error.path": "/data/error",
+    "empty.poll.wait.ms": "1000",
+    "halt.on.error": "false",
+    "processing.file.extension": ".processing"
+  }
+}

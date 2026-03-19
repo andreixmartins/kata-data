@@ -1,0 +1,17 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Environment overrides
+.env
+.env.*
+!.env.example
+
+# Docker / compose local overrides
+*.log
+docker-compose.override.yml
+
+# Runtime connector artifacts
+connectors/file-processor/processed/
+connectors/file-processor/error/

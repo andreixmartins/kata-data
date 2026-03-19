@@ -1,0 +1,34 @@
+{
+  "invoiceId": "2026-0003",
+  "issueDate": "2026-03-18",
+  "dueDate": "2026-03-28",
+  "currency": "EUR",
+  "status": "PAID",
+  "seller": {
+    "ssn": "321-54-9876",
+    "email": "info@alphacorp.eu"
+  },
+  "buyer": {
+    "ssn": "654-32-1987",
+    "email": "finance@betallc.eu"
+  },
+  "items": [
+    {
+      "itemId": "005",
+      "description": "Web Design Services",
+      "quantity": 15,
+      "unitPrice": 120.00
+    },
+    {
+      "itemId": "006",
+      "description": "Domain Registration",
+      "quantity": 2,
+      "unitPrice": 15.00
+    }
+  ],
+  "subtotal": 1830.00,
+  "discount": 30.00,
+  "total": 1800.00,
+  "paymentMethod": "CREDIT_CARD",
+  "notes": "Paid in full."
+}

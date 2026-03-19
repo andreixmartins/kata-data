@@ -1,0 +1,34 @@
+{
+  "invoiceId": "2026-0006",
+  "issueDate": "2026-03-15",
+  "dueDate": "2026-03-22",
+  "currency": "CAD",
+  "status": "PENDING",
+  "seller": {
+    "ssn": "444-55-6666",
+    "email": "billing@canadacorp.ca"
+  },
+  "buyer": {
+    "ssn": "777-88-9999",
+    "email": "finance@mapleinc.ca"
+  },
+  "items": [
+    {
+      "itemId": "011",
+      "description": "Consulting Fee",
+      "quantity": 8,
+      "unitPrice": 150.00
+    },
+    {
+      "itemId": "012",
+      "description": "Travel Expenses",
+      "quantity": 1,
+      "unitPrice": 300.00
+    }
+  ],
+  "subtotal": 1500.00,
+  "discount": 100.00,
+  "total": 1400.00,
+  "paymentMethod": "BANK_TRANSFER",
+  "notes": "Travel receipts attached."
+}

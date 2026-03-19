@@ -1,0 +1,34 @@
+{
+  "invoiceId": "2026-0012",
+  "issueDate": "2026-03-09",
+  "dueDate": "2026-03-16",
+  "currency": "EUR",
+  "status": "PAID",
+  "seller": {
+    "ssn": "234-56-7890",
+    "email": "sales@eurotech.eu"
+  },
+  "buyer": {
+    "ssn": "890-12-3456",
+    "email": "finance@clienteu.eu"
+  },
+  "items": [
+    {
+      "itemId": "023",
+      "description": "Translation Services",
+      "quantity": 25,
+      "unitPrice": 40.00
+    },
+    {
+      "itemId": "024",
+      "description": "Proofreading",
+      "quantity": 5,
+      "unitPrice": 30.00
+    }
+  ],
+  "subtotal": 1100.00,
+  "discount": 50.00,
+  "total": 1050.00,
+  "paymentMethod": "CREDIT_CARD",
+  "notes": "Thank you for your business."
+}
