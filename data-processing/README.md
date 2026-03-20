@@ -33,6 +33,20 @@ docker compose up --build
 docker compose up --build
 ```
 
+## Stop
+
+Stops all containers and **removes volumes** (full clean reset — all Kafka data wiped):
+
+```bash
+docker compose down -v
+```
+
+To stop without losing data (keeps volumes):
+
+```bash
+docker compose down
+```
+
 ## Register the connector
 
 Wait for Kafka Connect to be ready (usually ~30s), then:
