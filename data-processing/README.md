@@ -23,7 +23,13 @@ data-processing/
 
 ## Start
 
+**Linux / macOS:**
 ```bash
+docker compose up --build
+```
+
+**Windows (PowerShell):**
+```powershell
 docker compose up --build
 ```
 
@@ -31,6 +37,14 @@ docker compose up --build
 
 Wait for Kafka Connect to be ready (usually ~30s), then:
 
+**Linux / macOS:**
+```bash
+curl -s -X POST http://localhost:8083/connectors \
+  -H "Content-Type: application/json" \
+  -d @connectors/file-processor/invoices-file-connector.json
+```
+
+**Windows (PowerShell):**
 ```powershell
 Invoke-RestMethod -Method Post `
   -Uri http://localhost:8083/connectors `
@@ -47,6 +61,12 @@ Invoke-RestMethod -Method Post `
 ## Kafka UI
 
 Open [http://localhost:8080](http://localhost:8080) in your browser after starting the stack.
+**Linux / macOS:**
+```bash
+curl http://localhost:8083/connectors/invoices-file-source/status | jq
+```
+
+**Windows (PowerShell):**
 
 From there you can:
 - Browse topics and inspect messages in `sales.raw.invoice.files.v1`
@@ -55,8 +75,9 @@ From there you can:
 
 ## Check connector status
 
-```powershell
-Invoke-RestMethod http://localhost:8083/connectors/invoices-file-source/status
+**Linux / macOS / Windows:**
+```bash
+docker exec -it data-processing-kafka-1t:8083/connectors/invoices-file-source/status
 ```
 
 ## Consume events (optional)
