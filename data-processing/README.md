@@ -72,6 +72,17 @@ Invoke-RestMethod -Method Post `
 2. SpoolDir detects it and publishes the content as an event to `sales.raw.invoice.files.v1`
 3. The file is moved to `processed/` on success or `error/` on failure
 
+## Service URLs
+
+| Service | URL | Credentials |
+|---|---|---|
+| **Kafka UI** | http://localhost:8080 | — |
+| **Grafana** | http://localhost:3000 | `admin` / `admin` |
+| **Prometheus** | http://localhost:9090 | — |
+| **Loki** | http://localhost:3100 | — (API only) |
+| **Alloy** | http://localhost:12345 | — |
+| **Kafka Connect** | http://localhost:8083 | — (REST API) |
+
 ## Kafka UI
 
 Open [http://localhost:8080](http://localhost:8080) in your browser after starting the stack.
