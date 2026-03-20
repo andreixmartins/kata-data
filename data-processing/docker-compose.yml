@@ -35,6 +35,7 @@ services:
         cub kafka-ready -b kafka:29092 1 60
         kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic sales.raw.invoice.files.v1 --partitions 1 --replication-factor 1
         kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic sales.processor.result.v1 --partitions 1 --replication-factor 1
+        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic products.raw.postgres.v1 --partitions 1 --replication-factor 1
         echo "Topics ensured."
 
   connect:
@@ -72,8 +73,10 @@ services:
     depends_on:
       - connect
       - init-topics
+      - postgres
     volumes:
       - ./connectors/file-processor:/config
+      - ./connectors/postgres-products:/config-postgres
     entrypoint:
       - sh
       - -c
@@ -86,8 +89,12 @@ services:
         echo "Registering invoices-file-connector..."
         curl -fsS -X POST http://connect:8083/connectors \
           -H "Content-Type: application/json" \
-          -d @/config/invoices-file-connector.json
-        echo "Connector registered."
+          -d @/config/invoices-file-connector.json || echo "Invoices connector already exists."
+        echo "Registering products-jdbc-source connector..."
+        curl -fsS -X POST http://connect:8083/connectors \
+          -H "Content-Type: application/json" \
+          -d @/config-postgres/products-jdbc-connector.json || echo "Products connector already exists."
+        echo "Connectors registered."
     restart: on-failure
 
   kafka-ui:
@@ -168,3 +175,14 @@ services:
     depends_on:
       - prometheus
       - loki
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: productsdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d

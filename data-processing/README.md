@@ -1,6 +1,7 @@
 # data-processing
 
 Kafka Connect pipeline that watches directories for files and publishes events to Kafka topics.
+Also includes a JDBC Source connector that reads products from PostgreSQL.
 
 ## Structure
 
@@ -14,6 +15,10 @@ data-processing/
       processed/                  # Files moved here after successful processing
       error/                      # Files moved here on failure
       invoices-file-connector.json
+    postgres-products/
+      products-jdbc-connector.json
+  db/
+    init/                         # Postgres init SQL (products table + sample data)
   docker-compose.yml
 ```
 
@@ -71,6 +76,11 @@ Invoke-RestMethod -Method Post `
 1. Drop a `.json` file into `connectors/file-processor/invoices/`
 2. SpoolDir detects it and publishes the content as an event to `sales.raw.invoice.files.v1`
 3. The file is moved to `processed/` on success or `error/` on failure
+
+## PostgreSQL products connector
+
+- A local Postgres is started on port `5433` (container `5432`).
+- The JDBC Source connector reads the `products` table and publishes to `products.raw.postgres.v1`.
 
 ## Service URLs
 

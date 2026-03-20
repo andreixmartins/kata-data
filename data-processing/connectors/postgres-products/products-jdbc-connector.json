@@ -1,0 +1,23 @@
+{
+  "name": "products-jdbc-source",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+    "tasks.max": "1",
+    "connection.url": "jdbc:postgresql://postgres:5432/productsdb",
+    "connection.user": "postgres",
+    "connection.password": "postgres",
+    "mode": "incrementing",
+    "incrementing.column.name": "id",
+    "table.whitelist": "products",
+    "poll.interval.ms": "5000",
+    "topic.prefix": "products.raw.postgres.v1.",
+    "transforms": "route",
+    "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+    "transforms.route.regex": ".*",
+    "transforms.route.replacement": "products.raw.postgres.v1",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false"
+  }
+}
