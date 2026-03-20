@@ -29,11 +29,13 @@ data-processing/
 ## Start
 
 **Linux / macOS:**
+
 ```bash
 docker compose up --build
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 docker compose up --build
 ```
@@ -57,6 +59,7 @@ docker compose down
 Wait for Kafka Connect to be ready (usually ~30s), then:
 
 **Linux / macOS:**
+
 ```bash
 curl -s -X POST http://localhost:8083/connectors \
   -H "Content-Type: application/json" \
@@ -64,6 +67,7 @@ curl -s -X POST http://localhost:8083/connectors \
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 Invoke-RestMethod -Method Post `
   -Uri http://localhost:8083/connectors `
@@ -86,37 +90,46 @@ Invoke-RestMethod -Method Post `
 
 Reads hardware products (e.g., CPUs, RAM, GPUs) from PostgreSQL and publishes them to Kafka so other services can consume a live stream of catalog changes.
 
-### Flow
+### Flow (macro)
 
-1. PostgreSQL stores rows in the `products` table.
-2. Kafka Connect JDBC Source polls the table using the `id` column in incrementing mode.
-3. Each new row is published to the Kafka topic `products.raw.postgres.v1`.
-4. Downstream services (Kafka Streams, consumers, analytics) can subscribe to the topic.
+We have **three sources** (FS, DB, WS). All of them feed a **Kafka Streams** application.
+After processing, Kafka Connect publishes the results through **our connector**.
+
+1. **FS source**: file connector publishes raw events to Kafka.
+2. **DB source**: JDBC Source connector publishes product rows to Kafka.
+3. **WS source**: (future) WebSocket/source service publishes to Kafka.
+4. **Kafka Streams** consumes these source topics and produces a processed topic.
+5. **Kafka Connect** reads the processed topic and delivers it via **our connector** (sink).
 
 ### Diagram
 
 ```mermaid
 flowchart LR
-  DB["PostgreSQL (products table)"] -->|"JDBC Source Connector"| KC["Kafka Connect"]
-  KC -->|"topic: products.raw.postgres.v1"| K["Kafka"]
-  K -->|"stream processing (optional)"| KS["Kafka Streams / Apps"]
+  FS["FS Source"] --> K1["Kafka (source topics)"]
+  DB["DB Source"] --> K1
+  WS["WS Source"] --> K1
+  K1 --> KS["Kafka Streams"]
+  KS --> K2["Kafka (processed topic)"]
+  K2 --> KC["Kafka Connect"]
+
 ```
 
 ## Service URLs
 
-| Service | URL | Credentials |
-|---|---|---|
-| **Kafka UI** | http://localhost:8080 | — |
-| **Grafana** | http://localhost:3000 | `admin` / `admin` |
-| **Prometheus** | http://localhost:9090 | — |
-| **Loki** | http://localhost:3100 | — (API only) |
-| **Alloy** | http://localhost:12345 | — |
-| **Kafka Connect** | http://localhost:8083 | — (REST API) |
+| Service           | URL                    | Credentials       |
+| ----------------- | ---------------------- | ----------------- |
+| **Kafka UI**      | http://localhost:8080  | —                 |
+| **Grafana**       | http://localhost:3000  | `admin` / `admin` |
+| **Prometheus**    | http://localhost:9090  | —                 |
+| **Loki**          | http://localhost:3100  | — (API only)      |
+| **Alloy**         | http://localhost:12345 | —                 |
+| **Kafka Connect** | http://localhost:8083  | — (REST API)      |
 
 ## Kafka UI
 
 Open [http://localhost:8080](http://localhost:8080) in your browser after starting the stack.
 **Linux / macOS:**
+
 ```bash
 curl http://localhost:8083/connectors/invoices-file-source/status | jq
 ```
@@ -124,11 +137,13 @@ curl http://localhost:8083/connectors/invoices-file-source/status | jq
 **Windows (PowerShell):**
 
 From there you can:
- - Inspect messages in `sales.processed.results` topic for processed results.
+
+- Inspect messages in `sales.processed.results` topic for processed results.
 
 ## Check connector status
 
 **Linux / macOS / Windows:**
+
 ```bash
 docker exec -it data-processing-kafka-1t:8083/connectors/invoices-file-source/status
 ```
