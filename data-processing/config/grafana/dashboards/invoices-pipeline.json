@@ -26,7 +26,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "kafka_connect_source_task_metrics_poll_batch_avg_records",
+          "expr": "kafka_connect_source_task_metrics_poll_batch_avg_time_ms",
           "legendFormat": "{{connector}} task={{task}}"
         }
       ]

@@ -1,20 +1,2 @@
 rules:
-  - pattern: kafka.connect<type=connector-task-metrics,connector=(.+),task=(.+)><>(.+)
-    name: kafka_connect_connector_task_metrics_$3
-    labels:
-      connector: $1
-      task: $2
-  - pattern: kafka.connect<type=source-task-metrics,connector=(.+),task=(.+)><>(.+)
-    name: kafka_connect_source_task_metrics_$3
-    labels:
-      connector: $1
-      task: $2
-  - pattern: kafka.connect<type=task-error-metrics,connector=(.+),task=(.+)><>(.+)
-    name: kafka_connect_task_error_metrics_$3
-    labels:
-      connector: $1
-      task: $2
-  - pattern: kafka.connect<type=connect-worker-metrics><>(.+)
-    name: kafka_connect_worker_metrics_$1
-  - pattern: kafka.connect<type=connect-metrics><>(.+)
-    name: kafka_connect_metrics_$1
+  - pattern: ".*"
