@@ -1,0 +1,22 @@
+# Maven
+target/
+*.log
+*.class
+*.jar
+*.war
+*.ear
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Maven Wrapper
+.mvn/
+mvnw
