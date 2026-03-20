@@ -82,6 +82,26 @@ Invoke-RestMethod -Method Post `
 - A local Postgres is started on port `5433` (container `5432`).
 - The JDBC Source connector reads the `products` table and publishes to `products.raw.postgres.v1`.
 
+### What it does
+
+Reads hardware products (e.g., CPUs, RAM, GPUs) from PostgreSQL and publishes them to Kafka so other services can consume a live stream of catalog changes.
+
+### Flow
+
+1. PostgreSQL stores rows in the `products` table.
+2. Kafka Connect JDBC Source polls the table using the `id` column in incrementing mode.
+3. Each new row is published to the Kafka topic `products.raw.postgres.v1`.
+4. Downstream services (Kafka Streams, consumers, analytics) can subscribe to the topic.
+
+### Diagram
+
+```mermaid
+flowchart LR
+  DB["PostgreSQL (products table)"] -->|"JDBC Source Connector"| KC["Kafka Connect"]
+  KC -->|"topic: products.raw.postgres.v1"| K["Kafka"]
+  K -->|"stream processing (optional)"| KS["Kafka Streams / Apps"]
+```
+
 ## Service URLs
 
 | Service | URL | Credentials |
