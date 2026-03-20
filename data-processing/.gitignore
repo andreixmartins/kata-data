@@ -12,9 +12,11 @@ Thumbs.db
 *.log
 docker-compose.override.yml
 
-# Runtime connector artifacts
-connectors/file-processor/processed/
-connectors/file-processor/error/
+# Runtime connector artifacts — never commit files inside these directories
+connectors/**/invoices/*
+connectors/**/processed/*
+connectors/**/error/*
+!connectors/**/.gitkeep
 
 # Java/Maven build artifacts
 sales-processor-service/target/
