@@ -15,3 +15,12 @@ docker-compose.override.yml
 # Runtime connector artifacts
 connectors/file-processor/processed/
 connectors/file-processor/error/
+
+# Java/Maven build artifacts
+sales-processor-service/target/
+*.class
+*.jar
+.classpath
+.project
+.settings/
+/bin/

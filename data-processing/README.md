@@ -69,9 +69,7 @@ curl http://localhost:8083/connectors/invoices-file-source/status | jq
 **Windows (PowerShell):**
 
 From there you can:
-- Browse topics and inspect messages in `sales.raw.invoice.files.v1`
-- Monitor Kafka Connect connectors and their status
-- View consumer groups and lag
+ - Inspect messages in `sales.processed.results` topic for processed results.
 
 ## Check connector status
 

@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
@@ -23,6 +22,20 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+
+  init-topics:
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      - kafka
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo "Waiting for Kafka broker..."
+        cub kafka-ready -b kafka:29092 1 60
+        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic sales.raw.invoice.files.v1 --partitions 1 --replication-factor 1
+        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic sales.processor.result.v1 --partitions 1 --replication-factor 1
+        echo "Topics ensured."
 
   connect:
     build:
@@ -50,7 +63,7 @@ services:
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
       CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components,/etc/kafka-connect/jars"
-      KAFKA_OPTS: "-javaagent:/usr/share/java/kafka/jmx_prometheus_javaagent.jar=9404:/etc/kafka-connect/jmx-config.yml"
+      KAFKA_OPTS: "-javaagent:/tmp/jmx_prometheus_javaagent.jar=9404:/etc/kafka-connect/jmx-config.yml"
     volumes:
       - ./connectors/file-processor:/data
 
@@ -58,18 +71,20 @@ services:
     image: curlimages/curl:latest
     depends_on:
       - connect
+      - init-topics
     volumes:
       - ./connectors/file-processor:/config
     entrypoint:
       - sh
       - -c
       - |
+        mkdir -p /config/invoices /config/processed /config/error
         echo "Waiting for Kafka Connect to be ready..."
         until curl -sf http://connect:8083/connectors; do
           sleep 5
         done
         echo "Registering invoices-file-connector..."
-        curl -s -X POST http://connect:8083/connectors \
+        curl -fsS -X POST http://connect:8083/connectors \
           -H "Content-Type: application/json" \
           -d @/config/invoices-file-connector.json
         echo "Connector registered."
@@ -87,6 +102,27 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: connect
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://connect:8083
+
+  sales-processor-service:
+    build:
+      context: ./sales-processor-service
+      dockerfile: Dockerfile
+    depends_on:
+      - kafka
+      - init-topics
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_KAFKA_PROPERTIES_APPLICATION_ID: sales-processor-service
+      SPRING_KAFKA_PROPERTIES_GROUP_ID: sales-processor-service-group
+      SPRING_KAFKA_PROPERTIES_STATE_DIR: /tmp/kafka-streams
+      LOGGING_LEVEL_ROOT: INFO
+      LOGGING_LEVEL_COM_DATA_KATA_SALES_PROCESSOR_SERVICE: DEBUG
+      LOGGING_LEVEL_ORG_APACHE_KAFKA_STREAMS: INFO
+    volumes:
+      - /tmp/kafka-streams
+    restart: unless-stopped
 
   prometheus:
     image: prom/prometheus:v2.55.1
