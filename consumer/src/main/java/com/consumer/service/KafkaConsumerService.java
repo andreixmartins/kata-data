@@ -16,7 +16,7 @@ public class KafkaConsumerService {
         this.objectMapper = objectMapper;
     }
 
-    @KafkaListener(topics = "result-topic", groupId = "my-group")
+    @KafkaListener(topics = "sales.processor.result.v1", groupId = "my-group")
     public void consume(String message) {
         try {
             System.out.println("Message Received: " + message);
