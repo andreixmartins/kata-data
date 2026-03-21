@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="SalesService"
+             targetNamespace="http://sales.com/wsdl"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:tns="http://sales.com/wsdl"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+    <types>
+        <xsd:schema targetNamespace="http://sales.com/wsdl">
+            <xsd:element name="SubmitShippingRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="saleId" type="xsd:string"/>
+                        <xsd:element name="shippingMethod" type="xsd:string"/>
+                        <xsd:element name="trackingNumber" type="xsd:string"/>
+                        <xsd:element name="deliveryAddress" type="xsd:string"/>
+                        <xsd:element name="estimatedDelivery" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="SubmitShippingResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="status" type="xsd:string"/>
+                        <xsd:element name="message" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+    </types>
+
+    <message name="SubmitShippingInput">
+        <part name="parameters" element="tns:SubmitShippingRequest"/>
+    </message>
+    <message name="SubmitShippingOutput">
+        <part name="parameters" element="tns:SubmitShippingResponse"/>
+    </message>
+
+    <portType name="SalesPortType">
+        <operation name="submitShipping">
+            <input message="tns:SubmitShippingInput"/>
+            <output message="tns:SubmitShippingOutput"/>
+        </operation>
+    </portType>
+
+    <binding name="SalesBinding" type="tns:SalesPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="submitShipping">
+            <soap:operation soapAction="http://sales.com/submitShipping"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+    </binding>
+
+    <service name="SalesService">
+        <port name="SalesPort" binding="tns:SalesBinding">
+            <soap:address location="http://localhost:8181/shipping"/>
+        </port>
+    </service>
+</definitions>

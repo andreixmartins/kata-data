@@ -36,6 +36,7 @@ services:
         kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic sales.raw.invoice.files.v1 --partitions 1 --replication-factor 1
         kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic sales.processor.result.v1 --partitions 1 --replication-factor 1
         kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic products.raw.postgres.v1 --partitions 1 --replication-factor 1
+        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic sales.raw.shipping.webservice.v1 --partitions 1 --replication-factor 1
         echo "Topics ensured."
 
   connect:
@@ -45,6 +46,7 @@ services:
       - kafka
     ports:
       - "8083:8083"
+      - "8181:8181"
       - "9404:9404"
     environment:
       CONNECT_BOOTSTRAP_SERVERS: kafka:29092
@@ -63,10 +65,12 @@ services:
       CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
       CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
-      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components,/etc/kafka-connect/jars"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components,/etc/kafka-connect/jars,/opt/camel-connector"
+      CONNECT_PLUGIN_DISCOVERY: hybrid_warn
       KAFKA_OPTS: "-javaagent:/tmp/jmx_prometheus_javaagent.jar=9404:/etc/kafka-connect/jmx-config.yml"
     volumes:
       - ./connectors/file-processor:/data
+      - ./connectors/webservice-processor/wsdl:/etc/kafka-connect/wsdl
 
   init-connector:
     image: curlimages/curl:latest
@@ -77,6 +81,7 @@ services:
     volumes:
       - ./connectors/file-processor:/config
       - ./connectors/postgres-products:/config-postgres
+      - ./connectors/webservice-processor:/config-webservice
     entrypoint:
       - sh
       - -c
@@ -94,6 +99,10 @@ services:
         curl -fsS -X POST http://connect:8083/connectors \
           -H "Content-Type: application/json" \
           -d @/config-postgres/products-jdbc-connector.json || echo "Products connector already exists."
+        echo "Registering shipping-webservice-source connector..."
+        curl -fsS -X POST http://connect:8083/connectors \
+          -H "Content-Type: application/json" \
+          -d @/config-webservice/shipping-webservice-connector.json || echo "Shipping webservice connector already exists."
         echo "Connectors registered."
     restart: on-failure
 
