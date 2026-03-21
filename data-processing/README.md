@@ -54,27 +54,6 @@ To stop without losing data (keeps volumes):
 docker compose down
 ```
 
-## Register the connector
-
-Wait for Kafka Connect to be ready (usually ~30s), then:
-
-**Linux / macOS:**
-
-```bash
-curl -s -X POST http://localhost:8083/connectors \
-  -H "Content-Type: application/json" \
-  -d @connectors/file-processor/invoices-file-connector.json
-```
-
-**Windows (PowerShell):**
-
-```powershell
-Invoke-RestMethod -Method Post `
-  -Uri http://localhost:8083/connectors `
-  -ContentType "application/json" `
-  -InFile "connectors/file-processor/invoices-file-connector.json"
-```
-
 ## How it works
 
 1. Drop a `.json` file into `connectors/file-processor/invoices/`
@@ -133,12 +112,6 @@ Open [http://localhost:8080](http://localhost:8080) in your browser after starti
 ```bash
 curl http://localhost:8083/connectors/invoices-file-source/status | jq
 ```
-
-**Windows (PowerShell):**
-
-From there you can:
-
-- Inspect messages in `sales.processed.results` topic for processed results.
 
 ## Check connector status
 
