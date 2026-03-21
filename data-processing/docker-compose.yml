@@ -21,7 +21,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
 
   init-topics:
     image: confluentinc/cp-kafka:7.4.0
@@ -194,4 +194,4 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - ./db/init:/docker-entrypoint-initdb.d
+      - ./db/init/01-products.sql:/docker-entrypoint-initdb.d/01-products.sql
