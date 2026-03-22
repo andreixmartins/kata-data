@@ -14,14 +14,12 @@
   },
   "items": [
     {
-      "itemId": "017",
-      "description": "App Development",
+      "itemId": "CPU-RYZEN-7600X",
       "quantity": 30,
       "unitPrice": 60.00
     },
     {
-      "itemId": "018",
-      "description": "QA Testing",
+      "itemId": "RAM-DDR5-32GB-6000",
       "quantity": 10,
       "unitPrice": 40.00
     }

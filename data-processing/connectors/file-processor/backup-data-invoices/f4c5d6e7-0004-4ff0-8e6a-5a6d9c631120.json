@@ -14,14 +14,12 @@
   },
   "items": [
     {
-      "itemId": "007",
-      "description": "IT Support",
+      "itemId": "SSD-NVME-1TB",
       "quantity": 10,
       "unitPrice": 80.00
     },
     {
-      "itemId": "008",
-      "description": "Network Setup",
+      "itemId": "CPU-I5-14600K",
       "quantity": 1,
       "unitPrice": 500.00
     }

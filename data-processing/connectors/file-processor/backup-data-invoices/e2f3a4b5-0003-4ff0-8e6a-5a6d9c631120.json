@@ -14,14 +14,12 @@
   },
   "items": [
     {
-      "itemId": "005",
-      "description": "Web Design Services",
+      "itemId": "GPU-RTX-4060",
       "quantity": 15,
       "unitPrice": 120.00
     },
     {
-      "itemId": "006",
-      "description": "Domain Registration",
+      "itemId": "RAM-DDR4-16GB-3200",
       "quantity": 2,
       "unitPrice": 15.00
     }

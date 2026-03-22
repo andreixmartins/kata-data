@@ -14,14 +14,12 @@
   },
   "items": [
     {
-      "itemId": "023",
-      "description": "Translation Services",
+      "itemId": "RAM-DDR4-16GB-3200",
       "quantity": 25,
       "unitPrice": 40.00
     },
     {
-      "itemId": "024",
-      "description": "Proofreading",
+      "itemId": "GPU-RTX-4060",
       "quantity": 5,
       "unitPrice": 30.00
     }

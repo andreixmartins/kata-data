@@ -14,14 +14,12 @@
   },
   "items": [
     {
-      "itemId": "011",
-      "description": "Consulting Fee",
+      "itemId": "SSD-NVME-1TB",
       "quantity": 8,
       "unitPrice": 150.00
     },
     {
-      "itemId": "012",
-      "description": "Travel Expenses",
+      "itemId": "CPU-RYZEN-7600X",
       "quantity": 1,
       "unitPrice": 300.00
     }

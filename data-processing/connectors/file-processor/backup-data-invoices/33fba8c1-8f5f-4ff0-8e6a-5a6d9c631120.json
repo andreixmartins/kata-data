@@ -14,14 +14,12 @@
   },
   "items": [
     {
-      "itemId": "001",
-      "description": "Software Development Services",
+      "itemId": "GPU-RTX-4060",
       "quantity": 40,
       "unitPrice": 50.00
     },
     {
-      "itemId": "002",
-      "description": "Cloud Hosting (March 2026)",
+      "itemId": "SSD-NVME-1TB",
       "quantity": 1,
       "unitPrice": 300.00
     }

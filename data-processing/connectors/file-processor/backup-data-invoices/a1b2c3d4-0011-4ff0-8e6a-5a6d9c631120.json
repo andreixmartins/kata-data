@@ -14,14 +14,12 @@
   },
   "items": [
     {
-      "itemId": "021",
-      "description": "SEO Optimization",
+      "itemId": "RAM-DDR5-32GB-6000",
       "quantity": 6,
       "unitPrice": 200.00
     },
     {
-      "itemId": "022",
-      "description": "Content Writing",
+      "itemId": "CPU-I5-14600K",
       "quantity": 10,
       "unitPrice": 50.00
     }

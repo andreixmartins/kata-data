@@ -14,14 +14,12 @@
   },
   "items": [
     {
-      "itemId": "019",
-      "description": "Business Analysis",
+      "itemId": "GPU-RTX-4060",
       "quantity": 18,
       "unitPrice": 90.00
     },
     {
-      "itemId": "020",
-      "description": "Workshop Fee",
+      "itemId": "RAM-DDR4-16GB-3200",
       "quantity": 1,
       "unitPrice": 250.00
     }

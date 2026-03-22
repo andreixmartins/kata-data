@@ -14,14 +14,12 @@
   },
   "items": [
     {
-      "itemId": "013",
-      "description": "Legal Services",
+      "itemId": "CPU-RYZEN-7600X",
       "quantity": 12,
       "unitPrice": 100.00
     },
     {
-      "itemId": "014",
-      "description": "Filing Fee",
+      "itemId": "SSD-NVME-1TB",
       "quantity": 1,
       "unitPrice": 50.00
     }

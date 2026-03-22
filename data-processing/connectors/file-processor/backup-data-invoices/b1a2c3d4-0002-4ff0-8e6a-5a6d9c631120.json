@@ -14,14 +14,12 @@
   },
   "items": [
     {
-      "itemId": "003",
-      "description": "Consulting Services",
+      "itemId": "CPU-I5-14600K",
       "quantity": 20,
       "unitPrice": 75.00
     },
     {
-      "itemId": "004",
-      "description": "Cloud Hosting (April 2026)",
+      "itemId": "GPU-RTX-4060",
       "quantity": 1,
       "unitPrice": 320.00
     }
