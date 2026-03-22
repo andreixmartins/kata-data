@@ -15,18 +15,18 @@
   "items": [
     {
       "itemId": "RAM-DDR5-32GB-6000",
-      "quantity": 3,
-      "unitPrice": 400.00
+      "quantity": 1,
+      "unitPrice": 119.50
     },
     {
       "itemId": "CPU-I5-14600K",
-      "quantity": 2,
-      "unitPrice": 150.00
+      "quantity": 1,
+      "unitPrice": 329.00
     }
   ],
-  "subtotal": 1500.00,
+  "subtotal": 448.50,
   "discount": 100.00,
-  "total": 1400.00,
+  "total": 348.50,
   "paymentMethod": "BANK_TRANSFER",
   "notes": "Campaign report attached."
 }

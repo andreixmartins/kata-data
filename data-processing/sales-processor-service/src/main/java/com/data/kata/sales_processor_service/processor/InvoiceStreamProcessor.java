@@ -2,13 +2,21 @@ package com.data.kata.sales_processor_service.processor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.processor.api.FixedKeyProcessor;
+import org.apache.kafka.streams.processor.api.FixedKeyProcessorContext;
+import org.apache.kafka.streams.processor.api.FixedKeyRecord;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.ValueAndTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -28,12 +36,30 @@ public class InvoiceStreamProcessor {
     }
 
     private static final String SOURCE_TOPIC = "sales.raw.invoice.files.v1";
+    private static final String PRODUCTS_TOPIC = "products.raw.postgres.v1";
     private static final String SINK_TOPIC = "sales.processor.result.v1";
+    private static final String PRODUCTS_STORE = "products-by-sku-store";
 
     @Bean
     public KStream<String, String> processInvoices(StreamsBuilder builder) {
         logger.info("Initializing Kafka Streams topology");
         Serde<String> stringSerde = Serdes.String();
+
+        // Build a product lookup table keyed by SKU from the JDBC connector topic.
+        builder.stream(PRODUCTS_TOPIC, Consumed.with(stringSerde, stringSerde))
+            .flatMap((key, value) -> {
+                String normalized = normalizeJson(value);
+                String sku = extractField(normalized, "sku");
+                if (sku == null || sku.isBlank()) {
+                    return java.util.Collections.<KeyValue<String, String>>emptyList();
+                }
+                return java.util.List.of(KeyValue.pair(sku, normalized));
+            })
+            .toTable(
+                Materialized.<String, String, KeyValueStore<org.apache.kafka.common.utils.Bytes, byte[]>>as(PRODUCTS_STORE)
+                    .withKeySerde(stringSerde)
+                    .withValueSerde(stringSerde)
+            );
 
         KStream<String, String> sourceStream = builder.stream(
             SOURCE_TOPIC,
@@ -42,7 +68,23 @@ public class InvoiceStreamProcessor {
 
         KStream<String, String> processedStream = sourceStream
             .peek((key, value) -> logger.debug("Received raw invoice: key={}, value={}", key, value))
-            .mapValues((key, value) -> processInvoice(value))
+            .processValues(() -> new FixedKeyProcessor<String, String, String>() {
+                private FixedKeyProcessorContext<String, String> context;
+                private KeyValueStore<String, Object> productsStore;
+
+                @Override
+                @SuppressWarnings("unchecked")
+                public void init(FixedKeyProcessorContext<String, String> context) {
+                    this.context = context;
+                    this.productsStore = (KeyValueStore<String, Object>) context.getStateStore(PRODUCTS_STORE);
+                }
+
+                @Override
+                public void process(FixedKeyRecord<String, String> record) {
+                    String enriched = processInvoice(record.value(), productsStore);
+                    context.forward(record.withValue(enriched));
+                }
+            }, PRODUCTS_STORE)
             .peek((key, value) -> lineageService.emitRecordProcessed(key))
             .peek((key, value) -> logger.debug("Sending processed result: {}", value));
 
@@ -52,12 +94,35 @@ public class InvoiceStreamProcessor {
         return processedStream;
     }
 
-    private String processInvoice(String value) {
+    private String processInvoice(String value, KeyValueStore<String, Object> productsStore) {
         try {
             // SpoolDir SchemaLess connector may double-encode the value, unwrap if needed
-            JsonNode invoiceNode = objectMapper.readTree(value);
-            if (invoiceNode.isTextual()) {
-                invoiceNode = objectMapper.readTree(invoiceNode.asText());
+            JsonNode invoiceNode = objectMapper.readTree(normalizeJson(value));
+
+            if (invoiceNode.has("items") && invoiceNode.get("items").isArray()) {
+                ArrayNode items = (ArrayNode) invoiceNode.get("items");
+                for (JsonNode itemNode : items) {
+                    if (!(itemNode instanceof ObjectNode itemObject) || !itemObject.has("itemId")) {
+                        continue;
+                    }
+
+                    String sku = itemObject.get("itemId").asText();
+                    Object storedProduct = productsStore != null ? productsStore.get(sku) : null;
+                    String productRaw = extractStoredProductJson(storedProduct);
+                    if (productRaw == null || productRaw.isBlank()) {
+                        itemObject.put("product_lookup_status", "NOT_FOUND");
+                        continue;
+                    }
+
+                    JsonNode productNode = objectMapper.readTree(normalizeJson(productRaw));
+                    itemObject.put("product_lookup_status", "FOUND");
+                    if (productNode.has("name")) {
+                        itemObject.put("product_name", productNode.get("name").asText());
+                    }
+                    if (productNode.has("category")) {
+                        itemObject.put("product_category", productNode.get("category").asText());
+                    }
+                }
             }
 
             ObjectNode result = objectMapper.createObjectNode();
@@ -94,5 +159,39 @@ public class InvoiceStreamProcessor {
             logger.error("Failed to create error record", e);
             return "{\"status\":\"CRITICAL_ERROR\",\"message\":\"Failed to process and log error\"}";
         }
+    }
+
+    private String normalizeJson(String value) {
+        try {
+            JsonNode node = objectMapper.readTree(value);
+            return node.isTextual() ? node.asText() : value;
+        } catch (Exception ignored) {
+            return value;
+        }
+    }
+
+    private String extractField(String rawJson, String fieldName) {
+        try {
+            JsonNode node = objectMapper.readTree(normalizeJson(rawJson));
+            JsonNode field = node.get(fieldName);
+            return field != null && !field.isNull() ? field.asText() : null;
+        } catch (Exception e) {
+            logger.debug("Failed to extract field {} from product payload", fieldName, e);
+            return null;
+        }
+    }
+
+    private String extractStoredProductJson(Object storedProduct) {
+        if (storedProduct == null) {
+            return null;
+        }
+        if (storedProduct instanceof String raw) {
+            return raw;
+        }
+        if (storedProduct instanceof ValueAndTimestamp<?> wrapped) {
+            Object value = wrapped.value();
+            return value != null ? value.toString() : null;
+        }
+        return storedProduct.toString();
     }
 }

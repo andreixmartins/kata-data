@@ -16,17 +16,17 @@
     {
       "itemId": "CPU-I5-14600K",
       "quantity": 20,
-      "unitPrice": 75.00
+      "unitPrice": 329.00
     },
     {
       "itemId": "GPU-RTX-4060",
       "quantity": 1,
-      "unitPrice": 320.00
+      "unitPrice": 299.00
     }
   ],
-  "subtotal": 1820.00,
+  "subtotal": 6979.00,
   "discount": 50.00,
-  "total": 1770.00,
+  "total": 6929.00,
   "paymentMethod": "BANK_TRANSFER",
   "notes": "Payment due within 7 days."
 }

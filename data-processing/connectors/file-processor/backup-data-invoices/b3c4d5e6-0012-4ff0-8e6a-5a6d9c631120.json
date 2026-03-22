@@ -15,18 +15,18 @@
   "items": [
     {
       "itemId": "RAM-DDR4-16GB-3200",
-      "quantity": 25,
-      "unitPrice": 40.00
+      "quantity": 10,
+      "unitPrice": 49.99
     },
     {
       "itemId": "GPU-RTX-4060",
       "quantity": 5,
-      "unitPrice": 30.00
+      "unitPrice": 299.00
     }
   ],
-  "subtotal": 1100.00,
+  "subtotal": 1994.90,
   "discount": 50.00,
-  "total": 1050.00,
+  "total": 1944.90,
   "paymentMethod": "CREDIT_CARD",
   "notes": "Thank you for your business."
 }

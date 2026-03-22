@@ -15,18 +15,18 @@
   "items": [
     {
       "itemId": "SSD-NVME-1TB",
-      "quantity": 10,
-      "unitPrice": 80.00
+      "quantity": 1,
+      "unitPrice": 89.90
     },
     {
       "itemId": "CPU-I5-14600K",
       "quantity": 1,
-      "unitPrice": 500.00
+      "unitPrice": 329.00
     }
   ],
-  "subtotal": 1300.00,
+  "subtotal": 418.90,
   "discount": 100.00,
-  "total": 1200.00,
+  "total": 318.90,
   "paymentMethod": "PAYPAL",
   "notes": "Please process promptly."
 }

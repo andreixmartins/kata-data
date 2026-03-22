@@ -15,18 +15,18 @@
   "items": [
     {
       "itemId": "CPU-RYZEN-7600X",
-      "quantity": 30,
-      "unitPrice": 60.00
+      "quantity": 2,
+      "unitPrice": 249.99
     },
     {
       "itemId": "RAM-DDR5-32GB-6000",
-      "quantity": 10,
-      "unitPrice": 40.00
+      "quantity": 2,
+      "unitPrice": 119.50
     }
   ],
-  "subtotal": 2200.00,
-  "discount": 200.00,
-  "total": 2000.00,
+  "subtotal": 739.98,
+  "discount": 20.00,
+  "total": 719.98,
   "paymentMethod": "PAYPAL",
   "notes": "Contact for support."
 }
