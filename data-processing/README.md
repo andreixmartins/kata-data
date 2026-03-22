@@ -34,12 +34,6 @@ data-processing/
 docker compose up --build
 ```
 
-**Windows (PowerShell):**
-
-```powershell
-docker compose up --build
-```
-
 ## Stop
 
 Stops all containers and **removes volumes** (full clean reset — all Kafka data wiped):
@@ -54,20 +48,47 @@ To stop without losing data (keeps volumes):
 docker compose down
 ```
 
-## How it works
+## File connector
+### For processing new invoices, you can follow the below steps:
 
 1. Drop a `.json` file into `connectors/file-processor/invoices/`
 2. SpoolDir detects it and publishes the content as an event to `sales.raw.invoice.files.v1`
 3. The file is moved to `processed/` on success or `error/` on failure
 
 ## PostgreSQL products connector
+### For processing new products, you can follow the below steps:
 
-- A local Postgres is started on port `5433` (container `5432`).
+- Connect to productsdb Postgres DB started on port `5433` (container `5432`).
+- Insert the new product you want to add.
 - The JDBC Source connector reads the `products` table and publishes to `products.raw.postgres.v1`.
 
 ### What it does
 
 Reads hardware products (e.g., CPUs, RAM, GPUs) from PostgreSQL and publishes them to Kafka so other services can consume a live stream of catalog changes.
+
+## Sales Processor Service
+
+`sales-processor-service` is a Kafka Streams application that reads invoice events, enriches invoice items with product data, and publishes processed results.
+
+### Topics
+
+- Input invoices: `sales.raw.invoice.files.v1`
+- Input products: `products.raw.postgres.v1`
+- Output: `sales.processor.result.v1`
+
+### Enrichment behavior
+
+- Each invoice item uses `itemId` as SKU.
+- The service keeps a materialized Kafka Streams state store keyed by SKU from the products topic.
+- During invoice processing, each item is enriched with:
+  - `product_name`
+  - `product_category`
+  - `product_lookup_status` (`FOUND` or `NOT_FOUND`)
+
+### Runtime notes
+
+- New products inserted in PostgreSQL are published by the JDBC connector and become available for enrichment shortly after (based on connector poll interval).
+- On service restart, Kafka Streams restores the local state store from changelog/offsets, so processing continues from the last committed state.
 
 ### Flow (macro)
 
