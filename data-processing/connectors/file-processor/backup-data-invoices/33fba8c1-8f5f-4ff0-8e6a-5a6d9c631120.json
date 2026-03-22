@@ -15,18 +15,18 @@
   "items": [
     {
       "itemId": "GPU-RTX-4060",
-      "quantity": 40,
-      "unitPrice": 50.00
+      "quantity": 10,
+      "unitPrice": 299.00
     },
     {
       "itemId": "SSD-NVME-1TB",
       "quantity": 1,
-      "unitPrice": 300.00
+      "unitPrice": 89.90
     }
   ],
-  "subtotal": 2300.00,
+  "subtotal": 3089.90,
   "discount": 100.00,
-  "total": 2200.00,
+  "total": 2989.90,
   "paymentMethod": "BANK_TRANSFER",
   "notes": "Thank you for your business!"
 }

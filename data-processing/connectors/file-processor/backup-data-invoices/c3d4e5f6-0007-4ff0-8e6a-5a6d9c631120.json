@@ -15,18 +15,18 @@
   "items": [
     {
       "itemId": "CPU-RYZEN-7600X",
-      "quantity": 12,
-      "unitPrice": 100.00
+      "quantity": 1,
+      "unitPrice": 249.99
     },
     {
       "itemId": "SSD-NVME-1TB",
       "quantity": 1,
-      "unitPrice": 50.00
+      "unitPrice": 89.90
     }
   ],
-  "subtotal": 1250.00,
+  "subtotal": 339.89,
   "discount": 0.00,
-  "total": 1250.00,
+  "total": 339.89,
   "paymentMethod": "CREDIT_CARD",
   "notes": "Thank you for prompt payment."
 }

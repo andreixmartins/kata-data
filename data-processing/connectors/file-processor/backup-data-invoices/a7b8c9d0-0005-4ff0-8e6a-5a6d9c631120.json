@@ -16,17 +16,17 @@
     {
       "itemId": "CPU-RYZEN-7600X",
       "quantity": 5,
-      "unitPrice": 200.00
+      "unitPrice": 249.99
     },
     {
       "itemId": "RAM-DDR4-16GB-3200",
       "quantity": 1,
-      "unitPrice": 150.00
+      "unitPrice": 49.99
     }
   ],
-  "subtotal": 1150.00,
+  "subtotal": 1299.94,
   "discount": 0.00,
-  "total": 1150.00,
+  "total": 1299.94,
   "paymentMethod": "CASH",
   "notes": "Late fee may apply."
 }
