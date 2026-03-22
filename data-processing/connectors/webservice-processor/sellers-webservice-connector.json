@@ -1,10 +1,10 @@
 {
-  "name": "shipping-webservice-source",
+  "name": "sellers-webservice-source",
   "config": {
     "connector.class": "org.apache.camel.kafkaconnector.cxf.CamelCxfSourceConnector",
     "tasks.max": "1",
-    "topics": "sales.raw.shipping.webservice.v1",
-    "camel.source.path.address": "http://0.0.0.0:8181/shipping",
+    "topics": "sales.raw.sellers.webservice.v1",
+    "camel.source.path.address": "http://0.0.0.0:8181/sellers",
     "camel.source.endpoint.wsdlURL": "file:///etc/kafka-connect/wsdl/SalesService.wsdl",
     "camel.source.endpoint.serviceName": "{http://sales.com/wsdl}SalesService",
     "camel.source.endpoint.portName": "{http://sales.com/wsdl}SalesPort",

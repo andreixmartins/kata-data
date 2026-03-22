@@ -36,7 +36,7 @@ services:
         kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic sales.raw.invoice.files.v1 --partitions 1 --replication-factor 1
         kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic sales.processor.result.v1 --partitions 1 --replication-factor 1
         kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic products.raw.postgres.v1 --partitions 1 --replication-factor 1
-        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic sales.raw.shipping.webservice.v1 --partitions 1 --replication-factor 1
+        kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic sales.raw.sellers.webservice.v1 --partitions 1 --replication-factor 1
         echo "Topics ensured."
 
   connect:
@@ -99,10 +99,10 @@ services:
         curl -fsS -X POST http://connect:8083/connectors \
           -H "Content-Type: application/json" \
           -d @/config-postgres/products-jdbc-connector.json || echo "Products connector already exists."
-        echo "Registering shipping-webservice-source connector..."
+        echo "Registering sellers-webservice-source connector..."
         curl -fsS -X POST http://connect:8083/connectors \
           -H "Content-Type: application/json" \
-          -d @/config-webservice/shipping-webservice-connector.json || echo "Shipping webservice connector already exists."
+          -d @/config-webservice/sellers-webservice-connector.json || echo "Sellers webservice connector already exists."
         echo "Connectors registered."
     restart: on-failure
 
@@ -274,18 +274,18 @@ services:
             "producer": "init-marquez"
           }' && echo "products-jdbc-connector lineage registered."
 
-        # shipping-webservice-connector: SOAP endpoint -> sales.raw.shipping.webservice.v1
+        # sellers-webservice-connector: SOAP endpoint -> sales.raw.sellers.webservice.v1
         curl -fsS -X POST http://marquez-api:5000/api/v1/lineage \
           -H "Content-Type: application/json" \
           -d '{
             "eventType": "COMPLETE",
             "eventTime": "2024-01-01T00:00:00Z",
             "run": {"runId": "a1b2c3d4-0003-0003-0003-000000000003"},
-            "job": {"namespace": "kafka-connect-pipeline", "name": "shipping-webservice-connector"},
-            "inputs": [{"namespace": "http://0.0.0.0:8181", "name": "/shipping"}],
-            "outputs": [{"namespace": "kafka", "name": "sales.raw.shipping.webservice.v1"}],
+            "job": {"namespace": "kafka-connect-pipeline", "name": "sellers-webservice-connector"},
+            "inputs": [{"namespace": "http://0.0.0.0:8181", "name": "/sellers"}],
+            "outputs": [{"namespace": "kafka", "name": "sales.raw.sellers.webservice.v1"}],
             "producer": "init-marquez"
-          }' && echo "shipping-webservice-connector lineage registered."
+          }' && echo "sellers-webservice-connector lineage registered."
 
         echo "All connector datasets registered in Marquez."
     restart: on-failure

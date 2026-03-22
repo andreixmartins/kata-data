@@ -17,6 +17,10 @@ data-processing/
       invoices-file-connector.json
     postgres-products/
       products-jdbc-connector.json
+    webservice-processor/
+      wsdl/SalesService.wsdl      # WSDL for the sellers SOAP endpoint
+      sellers-webservice-connector.json
+      run.sh                      # Script to send seller requests and verify
   db/
     init/                         # Postgres init SQL (products table + sample data)
   docker-compose.yml
@@ -60,6 +64,18 @@ docker compose down
 2. SpoolDir detects it and publishes the content as an event to `sales.raw.invoice.files.v1`
 3. The file is moved to `processed/` on success or `error/` on failure
 
+## Filesystem invoices connector
+
+- SpoolDir watches `connectors/file-processor/invoices/` for `.json` files.
+- Each file is parsed and published as an event to `sales.raw.invoice.files.v1`.
+- Processed files move to `processed/`; failures move to `error/`.
+
+## Sellers webservice connector
+
+- A SOAP endpoint listens on port `8181` at `/sellers`.
+- Receives seller data (saleId, sellerName, city, country, totalAmount, currency, saleDate) via SOAP/XML.
+- Publishes raw messages to `sales.raw.sellers.webservice.v1` using Apache Camel CXF.
+
 ## PostgreSQL products connector
 
 - A local Postgres is started on port `5433` (container `5432`).
@@ -76,7 +92,7 @@ After processing, Kafka Connect publishes the results through **our connector**.
 
 1. **FS source**: file connector publishes raw events to Kafka.
 2. **DB source**: JDBC Source connector publishes product rows to Kafka.
-3. **WS source**: (future) WebSocket/source service publishes to Kafka.
+3. **WS source**: SOAP sellers endpoint publishes to Kafka.
 4. **Kafka Streams** consumes these source topics and produces a processed topic.
 5. **Kafka Connect** reads the processed topic and delivers it via **our connector** (sink).
 

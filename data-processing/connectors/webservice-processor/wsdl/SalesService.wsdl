@@ -8,18 +8,20 @@
 
     <types>
         <xsd:schema targetNamespace="http://sales.com/wsdl">
-            <xsd:element name="SubmitShippingRequest">
+            <xsd:element name="SubmitSellerRequest">
                 <xsd:complexType>
                     <xsd:sequence>
                         <xsd:element name="saleId" type="xsd:string"/>
-                        <xsd:element name="shippingMethod" type="xsd:string"/>
-                        <xsd:element name="trackingNumber" type="xsd:string"/>
-                        <xsd:element name="deliveryAddress" type="xsd:string"/>
-                        <xsd:element name="estimatedDelivery" type="xsd:string"/>
+                        <xsd:element name="sellerName" type="xsd:string"/>
+                        <xsd:element name="city" type="xsd:string"/>
+                        <xsd:element name="country" type="xsd:string"/>
+                        <xsd:element name="totalAmount" type="xsd:string"/>
+                        <xsd:element name="currency" type="xsd:string"/>
+                        <xsd:element name="saleDate" type="xsd:string"/>
                     </xsd:sequence>
                 </xsd:complexType>
             </xsd:element>
-            <xsd:element name="SubmitShippingResponse">
+            <xsd:element name="SubmitSellerResponse">
                 <xsd:complexType>
                     <xsd:sequence>
                         <xsd:element name="status" type="xsd:string"/>
@@ -30,24 +32,24 @@
         </xsd:schema>
     </types>
 
-    <message name="SubmitShippingInput">
-        <part name="parameters" element="tns:SubmitShippingRequest"/>
+    <message name="SubmitSellerInput">
+        <part name="parameters" element="tns:SubmitSellerRequest"/>
     </message>
-    <message name="SubmitShippingOutput">
-        <part name="parameters" element="tns:SubmitShippingResponse"/>
+    <message name="SubmitSellerOutput">
+        <part name="parameters" element="tns:SubmitSellerResponse"/>
     </message>
 
     <portType name="SalesPortType">
-        <operation name="submitShipping">
-            <input message="tns:SubmitShippingInput"/>
-            <output message="tns:SubmitShippingOutput"/>
+        <operation name="submitSeller">
+            <input message="tns:SubmitSellerInput"/>
+            <output message="tns:SubmitSellerOutput"/>
         </operation>
     </portType>
 
     <binding name="SalesBinding" type="tns:SalesPortType">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
-        <operation name="submitShipping">
-            <soap:operation soapAction="http://sales.com/submitShipping"/>
+        <operation name="submitSeller">
+            <soap:operation soapAction="http://sales.com/submitSeller"/>
             <input><soap:body use="literal"/></input>
             <output><soap:body use="literal"/></output>
         </operation>
@@ -55,7 +57,7 @@
 
     <service name="SalesService">
         <port name="SalesPort" binding="tns:SalesBinding">
-            <soap:address location="http://localhost:8181/shipping"/>
+            <soap:address location="http://localhost:8181/sellers"/>
         </port>
     </service>
 </definitions>
