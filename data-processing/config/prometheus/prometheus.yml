@@ -11,3 +11,8 @@ scrape_configs:
     static_configs:
       - targets: ['sales-processor-service:8080']
     metrics_path: /actuator/prometheus
+
+  - job_name: consumer
+    static_configs:
+      - targets: ['consumer:8080']
+    metrics_path: /actuator/prometheus
