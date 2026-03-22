@@ -138,6 +138,8 @@ services:
       LOGGING_LEVEL_ROOT: INFO
       LOGGING_LEVEL_COM_DATA_KATA_SALES_PROCESSOR_SERVICE: DEBUG
       LOGGING_LEVEL_ORG_APACHE_KAFKA_STREAMS: INFO
+      OPENLINEAGE_URL: "http://marquez-api:5000"
+      OPENLINEAGE_NAMESPACE: "sales-processor"
     volumes:
       - /tmp/kafka-streams
     restart: unless-stopped
@@ -195,3 +197,95 @@ services:
       - "5433:5432"
     volumes:
       - ./db/init/01-products.sql:/docker-entrypoint-initdb.d/01-products.sql
+
+  marquez-db:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=marquez
+      - POSTGRES_PASSWORD=marquez
+      - POSTGRES_DB=marquez
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "marquez"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  marquez-api:
+    image: marquezproject/marquez:latest
+    volumes:
+      - ./marquez.dev.yml:/usr/src/app/marquez.dev.yml
+    ports:
+      - "5005:5000"
+      - "5001:5001"
+    depends_on:
+      marquez-db:
+        condition: service_healthy
+
+  marquez-web:
+    image: marquezproject/marquez-web:latest
+    platform: linux/amd64
+    ports:
+      - "3001:3000"
+    environment:
+      - MARQUEZ_HOST=marquez-api
+      - MARQUEZ_PORT=5000
+      - MARQUEZ_API_URL=http://marquez-api:5000/api/v1
+      - WEB_PORT=3000
+    depends_on:
+      - marquez-api
+
+  init-marquez:
+    image: curlimages/curl:latest
+    depends_on:
+      - marquez-api
+    entrypoint:
+      - sh
+      - -c
+      - |
+        echo "Waiting for Marquez API..."
+        until curl -sf http://marquez-api:5000/api/v1/namespaces; do
+          sleep 3
+        done
+        echo "Marquez is ready. Registering connector lineage..."
+
+        # invoices-file-connector: /data/invoices -> sales.raw.invoice.files.v1
+        curl -fsS -X POST http://marquez-api:5000/api/v1/lineage \
+          -H "Content-Type: application/json" \
+          -d '{
+            "eventType": "COMPLETE",
+            "eventTime": "2024-01-01T00:00:00Z",
+            "run": {"runId": "a1b2c3d4-0001-0001-0001-000000000001"},
+            "job": {"namespace": "kafka-connect-pipeline", "name": "invoices-file-connector"},
+            "inputs": [{"namespace": "file-system", "name": "/data/invoices"}],
+            "outputs": [{"namespace": "kafka", "name": "sales.raw.invoice.files.v1"}],
+            "producer": "init-marquez"
+          }' && echo "invoices-file-connector lineage registered."
+
+        # products-jdbc-connector: productsdb.products -> products.raw.postgres.v1
+        curl -fsS -X POST http://marquez-api:5000/api/v1/lineage \
+          -H "Content-Type: application/json" \
+          -d '{
+            "eventType": "COMPLETE",
+            "eventTime": "2024-01-01T00:00:00Z",
+            "run": {"runId": "a1b2c3d4-0002-0002-0002-000000000002"},
+            "job": {"namespace": "kafka-connect-pipeline", "name": "products-jdbc-connector"},
+            "inputs": [{"namespace": "postgresql://postgres:5432", "name": "productsdb.products"}],
+            "outputs": [{"namespace": "kafka", "name": "products.raw.postgres.v1"}],
+            "producer": "init-marquez"
+          }' && echo "products-jdbc-connector lineage registered."
+
+        # shipping-webservice-connector: SOAP endpoint -> sales.raw.shipping.webservice.v1
+        curl -fsS -X POST http://marquez-api:5000/api/v1/lineage \
+          -H "Content-Type: application/json" \
+          -d '{
+            "eventType": "COMPLETE",
+            "eventTime": "2024-01-01T00:00:00Z",
+            "run": {"runId": "a1b2c3d4-0003-0003-0003-000000000003"},
+            "job": {"namespace": "kafka-connect-pipeline", "name": "shipping-webservice-connector"},
+            "inputs": [{"namespace": "http://0.0.0.0:8181", "name": "/shipping"}],
+            "outputs": [{"namespace": "kafka", "name": "sales.raw.shipping.webservice.v1"}],
+            "producer": "init-marquez"
+          }' && echo "shipping-webservice-connector lineage registered."
+
+        echo "All connector datasets registered in Marquez."
+    restart: on-failure

@@ -13,12 +13,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import com.data.kata.sales_processor_service.lineage.LineageService;
 
 @Component
 public class InvoiceStreamProcessor {
 
     private static final Logger logger = LoggerFactory.getLogger(InvoiceStreamProcessor.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final LineageService lineageService;
+
+    public InvoiceStreamProcessor(LineageService lineageService) {
+        this.lineageService = lineageService;
+    }
 
     private static final String SOURCE_TOPIC = "sales.raw.invoice.files.v1";
     private static final String SINK_TOPIC = "sales.processor.result.v1";
@@ -36,6 +43,7 @@ public class InvoiceStreamProcessor {
         KStream<String, String> processedStream = sourceStream
             .peek((key, value) -> logger.debug("Received raw invoice: key={}, value={}", key, value))
             .mapValues((key, value) -> processInvoice(value))
+            .peek((key, value) -> lineageService.emitRecordProcessed(key))
             .peek((key, value) -> logger.debug("Sending processed result: {}", value));
 
         processedStream.to(SINK_TOPIC, Produced.with(stringSerde, stringSerde));
