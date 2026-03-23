@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface ResultRepository extends JpaRepository<ResultEntity, Long> {
     @Query("""
-        SELECT new com.consumer.dto.TopSalesmanCountryDTO(r.salesman, SUM(r.totalAmount))
+        SELECT new com.consumer.dto.TopSalesmanCountryDTO(r.salesman, r.country, SUM(r.totalAmount))
         FROM ResultEntity r
-        GROUP BY r.salesman
+        GROUP BY r.salesman, r.country
         ORDER BY SUM(r.totalAmount) DESC
     """)
     List<TopSalesmanCountryDTO> findTopSalesmanCountry();

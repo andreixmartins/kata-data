@@ -12,10 +12,13 @@ public class ResultEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String city;
+    private String invoiceId;
     private String salesman;
-    private String source;
+    private String city;
+    private String country;
+    private String status;
     private double totalAmount;
+    private long processedAt;
 
     public Long getId() {
         return id;
@@ -25,12 +28,12 @@ public class ResultEntity {
         this.id = id;
     }
 
-    public String getCity() {
-        return city;
+    public String getInvoiceId() {
+        return invoiceId;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setInvoiceId(String invoiceId) {
+        this.invoiceId = invoiceId;
     }
 
     public String getSalesman() {
@@ -41,12 +44,28 @@ public class ResultEntity {
         this.salesman = salesman;
     }
 
-    public String getSource() {
-        return source;
+    public String getCity() {
+        return city;
     }
 
-    public void setSource(String source) {
-        this.source = source;
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public double getTotalAmount() {
@@ -55,5 +74,13 @@ public class ResultEntity {
 
     public void setTotalAmount(double totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public long getProcessedAt() {
+        return processedAt;
+    }
+
+    public void setProcessedAt(long processedAt) {
+        this.processedAt = processedAt;
     }
 }
