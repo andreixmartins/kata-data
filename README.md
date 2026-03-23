@@ -121,13 +121,45 @@ After processing, Kafka Connect publishes the results through **our connector**.
 
 ```mermaid
 flowchart LR
-  FS["FS Source"] --> K1["Kafka (source topics)"]
-  DB["DB Source"] --> K1
-  WS["WS Source"] --> K1
-  K1 --> KS["Kafka Streams"]
-  KS --> K2["Kafka (processed topic)"]
-  K2 --> KC["Kafka Connect"]
+  subgraph Sources
+    FS["File System (invoices/)"]
+    PG["PostgreSQL (products table)"]
+    SOAP["SOAP Endpoint (/sellers)"]
+  end
 
+  subgraph Kafka Connect
+    SC1["SpoolDir Connector"]
+    SC2["JDBC Source Connector"]
+    SC3["Camel CXF Connector"]
+  end
+
+  subgraph Kafka Topics
+    T1["sales.raw.invoice.files.v1"]
+    T2["products.raw.postgres.v1"]
+    T3["sales.raw.sellers.webservice.v1"]
+    T4["sales.processor.result.v1"]
+  end
+
+  subgraph sales-processor-service
+    KS["Kafka Streams"]
+  end
+
+  subgraph Consumer App
+    KC["Kafka Consumer"]
+    CPG["PostgreSQL (consumer DB)"]
+  end
+
+  FS --> SC1 --> T1
+  PG --> SC2 --> T2
+  SOAP --> SC3 --> T3
+
+  T1 --> KS
+  T2 --> KS
+  T3 --> KS
+
+  KS -->|enriched invoices| T4
+
+  T4 --> KC --> CPG
 ```
 
 ## Service URLs
