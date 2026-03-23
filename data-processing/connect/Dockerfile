@@ -48,6 +48,14 @@ RUN mkdir -p /tmp/shim/META-INF/services && \
     cd /tmp/shim && jar cf ${CAMEL_PLUGIN_DIR}/camel-cxf-service-shim.jar META-INF/ && \
     rm -rf /tmp/shim
 
+COPY src /tmp/smt-src
+RUN mkdir -p /tmp/smt-classes && \
+    javac -cp "/usr/share/java/kafka/*" \
+      -d /tmp/smt-classes \
+      /tmp/smt-src/com/data/kata/connect/transforms/BodyToString.java && \
+    cd /tmp/smt-classes && jar cf ${CAMEL_PLUGIN_DIR}/body-to-string-smt.jar com/ && \
+    rm -rf /tmp/smt-src /tmp/smt-classes
+
 USER 1000
 
 RUN curl -fsSL -o /tmp/jmx_prometheus_javaagent.jar \
