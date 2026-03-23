@@ -53,6 +53,7 @@ docker compose down
 ```
 
 ## File connector
+
 ### For processing new invoices, you can follow the below steps:
 
 1. Drop a `.json` file into `connectors/file-processor/invoices/`
@@ -104,6 +105,7 @@ curl -X POST http://localhost:8181/sellers \
 ```
 
 ## PostgreSQL products connector
+
 ### For processing new products, you can follow the below steps:
 
 - Connect to productsdb Postgres DB started on port `5433` (container `5432`).
@@ -113,34 +115,6 @@ curl -X POST http://localhost:8181/sellers \
 ### What it does
 
 Reads hardware products (e.g., CPUs, RAM, GPUs) from PostgreSQL and publishes them to Kafka so other services can consume a live stream of catalog changes.
-
-### Connector example (JDBC Source)
-
-```json
-{
-  "name": "products-jdbc-source",
-  "config": {
-    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
-    "tasks.max": "1",
-    "connection.url": "jdbc:postgresql://postgres:5432/productsdb",
-    "connection.user": "postgres",
-    "connection.password": "postgres",
-    "mode": "incrementing",
-    "incrementing.column.name": "id",
-    "table.whitelist": "products",
-    "poll.interval.ms": "5000",
-    "topic.prefix": "products.raw.postgres.v1.",
-    "transforms": "route",
-    "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
-    "transforms.route.regex": ".*",
-    "transforms.route.replacement": "products.raw.postgres.v1",
-    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "key.converter.schemas.enable": "false",
-    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "value.converter.schemas.enable": "false"
-  }
-}
-```
 
 ### Example table schema
 
@@ -154,6 +128,22 @@ CREATE TABLE IF NOT EXISTS products (
   stock INT NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+```
+
+### Example query result
+
+```sql
+SELECT * FROM products;
+```
+
+Example output:
+
+```
+ id | sku                 | name                       | category | price_usd | stock | created_at
+----+---------------------+----------------------------+----------+-----------+-------+---------------------
+  1 | CPU-RYZEN-7600X      | AMD Ryzen 5 7600X           | cpu      |    249.99 |    15 | 2026-03-23 09:00:00
+  2 | RAM-DDR5-32GB-6000   | DDR5 32GB 6000MHz Kit       | ram      |    119.50 |    25 | 2026-03-23 09:00:00
+  3 | SSD-NVME-1TB         | NVMe SSD 1TB                | storage  |     89.90 |    30 | 2026-03-23 09:00:00
 ```
 
 ## Sales Processor Service
@@ -292,6 +282,7 @@ docker compose up --build
 ```
 
 The consumer will:
+
 - Start PostgreSQL on port 5434
 - Start the Springboot app on port 8082
 - Connect to the Kafka cluster from the main docker-compose stack
@@ -299,17 +290,15 @@ The consumer will:
 
 To stop:
 
-
-docker compose down -v  # removes values
-docker compose down     # keep the data
+docker compose down -v # removes values
+docker compose down # keep the data
 
 Endpoints
 
 Base URL: http://localhost:8082
 
-
-| Endpoint                          | Method                | Description                               |
-|-----------------------------------|-----------------------|-------------------------------------------|
-| **/results**                      | GET                   | Return all consumed sales record          |
-| **/results/top-salesman-country** | GET                   | Returns top salesmen aggregated by country|
-| **/results/top-sales-per-city**   | GET                   | Returns total sales aggregated by city    |
+| Endpoint                          | Method | Description                                |
+| --------------------------------- | ------ | ------------------------------------------ |
+| **/results**                      | GET    | Return all consumed sales record           |
+| **/results/top-salesman-country** | GET    | Returns top salesmen aggregated by country |
+| **/results/top-sales-per-city**   | GET    | Returns total sales aggregated by city     |
