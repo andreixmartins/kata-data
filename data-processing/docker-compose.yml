@@ -255,9 +255,9 @@ services:
             "eventType": "COMPLETE",
             "eventTime": "2024-01-01T00:00:00Z",
             "run": {"runId": "a1b2c3d4-0001-0001-0001-000000000001"},
-            "job": {"namespace": "kafka-connect-pipeline", "name": "invoices-file-connector"},
-            "inputs": [{"namespace": "file-system", "name": "/data/invoices"}],
-            "outputs": [{"namespace": "kafka", "name": "sales.raw.invoice.files.v1"}],
+            "job": {"namespace": "kafka-pipeline", "name": "invoices-file-connector"},
+            "inputs": [{"namespace": "kafka-pipeline", "name": "/data/invoices"}],
+            "outputs": [{"namespace": "kafka-pipeline", "name": "sales.raw.invoice.files.v1"}],
             "producer": "init-marquez"
           }' && echo "invoices-file-connector lineage registered."
 
@@ -268,9 +268,9 @@ services:
             "eventType": "COMPLETE",
             "eventTime": "2024-01-01T00:00:00Z",
             "run": {"runId": "a1b2c3d4-0002-0002-0002-000000000002"},
-            "job": {"namespace": "kafka-connect-pipeline", "name": "products-jdbc-connector"},
-            "inputs": [{"namespace": "postgresql://postgres:5432", "name": "productsdb.products"}],
-            "outputs": [{"namespace": "kafka", "name": "products.raw.postgres.v1"}],
+            "job": {"namespace": "kafka-pipeline", "name": "products-jdbc-connector"},
+            "inputs": [{"namespace": "kafka-pipeline", "name": "productsdb.products"}],
+            "outputs": [{"namespace": "kafka-pipeline", "name": "products.raw.postgres.v1"}],
             "producer": "init-marquez"
           }' && echo "products-jdbc-connector lineage registered."
 
@@ -281,9 +281,9 @@ services:
             "eventType": "COMPLETE",
             "eventTime": "2024-01-01T00:00:00Z",
             "run": {"runId": "a1b2c3d4-0003-0003-0003-000000000003"},
-            "job": {"namespace": "kafka-connect-pipeline", "name": "sellers-webservice-connector"},
-            "inputs": [{"namespace": "http://0.0.0.0:8181", "name": "/sellers"}],
-            "outputs": [{"namespace": "kafka", "name": "sales.raw.sellers.webservice.v1"}],
+            "job": {"namespace": "kafka-pipeline", "name": "sellers-webservice-connector"},
+            "inputs": [{"namespace": "kafka-pipeline", "name": "/sellers"}],
+            "outputs": [{"namespace": "kafka-pipeline", "name": "sales.raw.sellers.webservice.v1"}],
             "producer": "init-marquez"
           }' && echo "sellers-webservice-connector lineage registered."
 

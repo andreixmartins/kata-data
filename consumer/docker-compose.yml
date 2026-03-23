@@ -21,7 +21,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       OPENLINEAGE_URL: "http://marquez-api:5000"
-      OPENLINEAGE_NAMESPACE: "sales-consumer"
+      OPENLINEAGE_NAMESPACE: "kafka-pipeline"
     ports:
       - "8082:8080"
     networks:
