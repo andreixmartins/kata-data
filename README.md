@@ -49,6 +49,20 @@ Also includes a JDBC Source connector that reads products from PostgreSQL.
 
 ## Requirements
 
+    1. Ingestion for 3 different data sources (Relational DB, File system and Traditional WS-*)
+    2. Modern Processing with Spark, Flink or Kafka Streams
+    3. Data Lineage
+    4. Observability
+    5. Pipelines must have at least 2 pipelines:
+        a. Top Sales per City 
+        b. Top Salesman in the whole country
+    6. The final Aggregated results mut be in a dedicated DB and API
+  
+  ##  Restrictions:
+    1. Python
+    2. Red-Shift
+    3. Hadoop
+
 - [Docker](https://www.docker.com/) with Compose
 
 ## Start
