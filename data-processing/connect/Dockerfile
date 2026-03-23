@@ -34,7 +34,13 @@ RUN curl -fsSL -o ${CAMEL_PLUGIN_DIR}/cxf-rt-transports-http-undertow-${CXF_VERS
     curl -fsSL -o ${CAMEL_PLUGIN_DIR}/wildfly-common-1.7.0.Final.jar \
       "https://repo1.maven.org/maven2/org/wildfly/common/wildfly-common/1.7.0.Final/wildfly-common-1.7.0.Final.jar" && \
     curl -fsSL -o ${CAMEL_PLUGIN_DIR}/jboss-logging-3.5.3.Final.jar \
-      "https://repo1.maven.org/maven2/org/jboss/logging/jboss-logging/3.5.3.Final/jboss-logging-3.5.3.Final.jar"
+      "https://repo1.maven.org/maven2/org/jboss/logging/jboss-logging/3.5.3.Final/jboss-logging-3.5.3.Final.jar" && \
+    curl -fsSL -o ${CAMEL_PLUGIN_DIR}/saaj-impl-3.0.4.jar \
+      "https://repo1.maven.org/maven2/com/sun/xml/messaging/saaj/saaj-impl/3.0.4/saaj-impl-3.0.4.jar" && \
+    curl -fsSL -o ${CAMEL_PLUGIN_DIR}/jakarta.xml.soap-api-3.0.2.jar \
+      "https://repo1.maven.org/maven2/jakarta/xml/soap/jakarta.xml.soap-api/3.0.2/jakarta.xml.soap-api-3.0.2.jar" && \
+    curl -fsSL -o ${CAMEL_PLUGIN_DIR}/stax-ex-2.1.0.jar \
+      "https://repo1.maven.org/maven2/org/jvnet/staxex/stax-ex/2.1.0/stax-ex-2.1.0.jar"
 
 RUN mkdir -p /tmp/shim/META-INF/services && \
     echo "org.apache.camel.kafkaconnector.cxf.CamelCxfSourceConnector" > /tmp/shim/META-INF/services/org.apache.kafka.connect.source.SourceConnector && \
