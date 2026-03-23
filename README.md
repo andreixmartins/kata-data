@@ -71,6 +71,38 @@ docker compose down
 - Receives seller data (saleId, sellerName, city, country, totalAmount, currency, saleDate) via SOAP/XML.
 - Publishes raw messages to `sales.raw.sellers.webservice.v1` using Apache Camel CXF.
 
+### Sending a SOAP request
+
+Request body:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://sales.com/wsdl">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ws:SubmitSellerRequest>
+         <ws:ssn>123-45-6789</ws:ssn>
+         <ws:saleId>550e8400-e29b-41d4-a716-446655440000</ws:saleId>
+         <ws:sellerName>John Doe</ws:sellerName>
+         <ws:city>San Francisco</ws:city>
+         <ws:country>US</ws:country>
+         <ws:totalAmount>4500.00</ws:totalAmount>
+         <ws:currency>USD</ws:currency>
+         <ws:saleDate>2026-01-20</ws:saleDate>
+      </ws:SubmitSellerRequest>
+   </soapenv:Body>
+</soapenv:Envelope>
+```
+
+Send it with curl:
+
+```bash
+curl -X POST http://localhost:8181/sellers \
+  -H "Content-Type: text/xml; charset=utf-8" \
+  -H "SOAPAction: http://sales.com/submitSeller" \
+  -d @request.xml
+```
+
 ## PostgreSQL products connector
 ### For processing new products, you can follow the below steps:
 
@@ -239,5 +271,3 @@ Base URL: http://localhost:8082
 | **/results**                      | GET                   | Return all consumed sales record          |
 | **/results/top-salesman-country** | GET                   | Returns top salesmen aggregated by country|
 | **/results/top-sales-per-city**   | GET                   | Returns total sales aggregated by city    |
-
-
