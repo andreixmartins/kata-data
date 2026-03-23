@@ -3,29 +3,6 @@
 Kafka Connect pipeline that watches directories for files and publishes events to Kafka topics.
 Also includes a JDBC Source connector that reads products from PostgreSQL.
 
-## Structure
-
-```
-data-processing/
-  connect/                        # Kafka Connect Docker image (SpoolDir plugin)
-  connectors/
-    file-processor/
-      backup-data-invoices/       # Default .json invoice files for testing
-      invoices/                   # Drop .json invoice files here
-      processed/                  # Files moved here after successful processing
-      error/                      # Files moved here on failure
-      invoices-file-connector.json
-    postgres-products/
-      products-jdbc-connector.json
-    webservice-processor/
-      wsdl/SalesService.wsdl      # WSDL for the sellers SOAP endpoint
-      sellers-webservice-connector.json
-      run.sh                      # Script to send seller requests and verify
-  db/
-    init/                         # Postgres init SQL (products table + sample data)
-  docker-compose.yml
-```
-
 ## Requirements
 
 - [Docker](https://www.docker.com/) with Compose
@@ -64,6 +41,43 @@ docker compose down
 - SpoolDir watches `connectors/file-processor/invoices/` for `.json` files.
 - Each file is parsed and published as an event to `sales.raw.invoice.files.v1`.
 - Processed files move to `processed/`; failures move to `error/`.
+
+- Example of the file for Invoice
+```json
+{
+  "invoiceId": "2026-0001",
+  "issueDate": "2026-03-18",
+  "dueDate": "2026-03-25",
+  "currency": "USD",
+  "status": "PENDING",
+  "seller": {
+    "ssn": "123-45-6789",
+    "email": "billing@seller.com"
+  },
+  "buyer": {
+    "ssn": "987-65-4321",
+    "email": "accounts@buyer.com"
+  },
+  "items": [
+    {
+      "itemId": "GPU-RTX-4060",
+      "quantity": 10,
+      "unitPrice": 299.00
+    },
+    {
+      "itemId": "SSD-NVME-1TB",
+      "quantity": 1,
+      "unitPrice": 89.90
+    }
+  ],
+  "subtotal": 3089.90,
+  "discount": 100.00,
+  "total": 2989.90,
+  "paymentMethod": "BANK_TRANSFER",
+  "notes": "Thank you for your business!"
+}
+```
+
 
 ## Sellers webservice connector
 
