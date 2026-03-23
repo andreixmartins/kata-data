@@ -3,6 +3,10 @@
 Kafka Connect pipeline that watches directories for files and publishes events to Kafka topics.
 Also includes a JDBC Source connector that reads products from PostgreSQL.
 
+
+<img src="KATA-DATA.png">
+
+
 ## Requirements
 
 - [Docker](https://www.docker.com/) with Compose
