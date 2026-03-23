@@ -48,12 +48,17 @@ public class InvoiceStreamProcessor {
         // Build a product lookup table keyed by SKU from the JDBC connector topic.
         builder.stream(PRODUCTS_TOPIC, Consumed.with(stringSerde, stringSerde))
             .flatMap((key, value) -> {
-                String normalized = normalizeJson(value);
-                String sku = extractField(normalized, "sku");
-                if (sku == null || sku.isBlank()) {
+                try {
+                    JsonNode node = parseJson(value);
+                    JsonNode skuField = node.get("sku");
+                    if (skuField == null || skuField.isNull() || skuField.asText().isBlank()) {
+                        return java.util.Collections.<KeyValue<String, String>>emptyList();
+                    }
+                    return java.util.List.of(KeyValue.pair(skuField.asText(), objectMapper.writeValueAsString(node)));
+                } catch (Exception e) {
+                    logger.debug("Failed to extract SKU from product payload", e);
                     return java.util.Collections.<KeyValue<String, String>>emptyList();
                 }
-                return java.util.List.of(KeyValue.pair(sku, normalized));
             })
             .toTable(
                 Materialized.<String, String, KeyValueStore<org.apache.kafka.common.utils.Bytes, byte[]>>as(PRODUCTS_STORE)
@@ -97,7 +102,7 @@ public class InvoiceStreamProcessor {
     private String processInvoice(String value, KeyValueStore<String, Object> productsStore) {
         try {
             // SpoolDir SchemaLess connector may double-encode the value, unwrap if needed
-            JsonNode invoiceNode = objectMapper.readTree(normalizeJson(value));
+            JsonNode invoiceNode = parseJson(value);
 
             if (invoiceNode.has("items") && invoiceNode.get("items").isArray()) {
                 ArrayNode items = (ArrayNode) invoiceNode.get("items");
@@ -114,7 +119,7 @@ public class InvoiceStreamProcessor {
                         continue;
                     }
 
-                    JsonNode productNode = objectMapper.readTree(normalizeJson(productRaw));
+                    JsonNode productNode = parseJson(productRaw);
                     itemObject.put("product_lookup_status", "FOUND");
                     if (productNode.has("name")) {
                         itemObject.put("product_name", productNode.get("name").asText());
@@ -161,32 +166,15 @@ public class InvoiceStreamProcessor {
         }
     }
 
-    private String normalizeJson(String value) {
-        try {
-            JsonNode node = objectMapper.readTree(value);
-            return node.isTextual() ? node.asText() : value;
-        } catch (Exception ignored) {
-            return value;
-        }
-    }
-
-    private String extractField(String rawJson, String fieldName) {
-        try {
-            JsonNode node = objectMapper.readTree(normalizeJson(rawJson));
-            JsonNode field = node.get(fieldName);
-            return field != null && !field.isNull() ? field.asText() : null;
-        } catch (Exception e) {
-            logger.debug("Failed to extract field {} from product payload", fieldName, e);
-            return null;
-        }
+    private JsonNode parseJson(String value) throws Exception {
+        JsonNode node = objectMapper.readTree(value);
+        // SpoolDir SchemaLess connector may double-encode as a JSON string, unwrap if needed
+        return node.isTextual() ? objectMapper.readTree(node.asText()) : node;
     }
 
     private String extractStoredProductJson(Object storedProduct) {
         if (storedProduct == null) {
             return null;
-        }
-        if (storedProduct instanceof String raw) {
-            return raw;
         }
         if (storedProduct instanceof ValueAndTimestamp<?> wrapped) {
             Object value = wrapped.value();
