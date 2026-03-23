@@ -114,6 +114,48 @@ curl -X POST http://localhost:8181/sellers \
 
 Reads hardware products (e.g., CPUs, RAM, GPUs) from PostgreSQL and publishes them to Kafka so other services can consume a live stream of catalog changes.
 
+### Connector example (JDBC Source)
+
+```json
+{
+  "name": "products-jdbc-source",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+    "tasks.max": "1",
+    "connection.url": "jdbc:postgresql://postgres:5432/productsdb",
+    "connection.user": "postgres",
+    "connection.password": "postgres",
+    "mode": "incrementing",
+    "incrementing.column.name": "id",
+    "table.whitelist": "products",
+    "poll.interval.ms": "5000",
+    "topic.prefix": "products.raw.postgres.v1.",
+    "transforms": "route",
+    "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+    "transforms.route.regex": ".*",
+    "transforms.route.replacement": "products.raw.postgres.v1",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false"
+  }
+}
+```
+
+### Example table schema
+
+```sql
+CREATE TABLE IF NOT EXISTS products (
+  id SERIAL PRIMARY KEY,
+  sku VARCHAR(64) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  category VARCHAR(64) NOT NULL,
+  price_usd NUMERIC(12,2) NOT NULL,
+  stock INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+```
+
 ## Sales Processor Service
 
 `sales-processor-service` is a Kafka Streams application that reads invoice events, enriches invoice items with product data, and publishes processed results.
