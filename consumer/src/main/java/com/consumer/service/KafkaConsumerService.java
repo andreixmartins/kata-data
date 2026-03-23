@@ -2,6 +2,8 @@ package com.consumer.service;
 
 import com.consumer.entity.ResultEntity;
 import com.consumer.lineage.LineageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
@@ -9,6 +11,8 @@ import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class KafkaConsumerService {
+
+    private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerService.class);
 
     private final ResultService service;
     private final ObjectMapper objectMapper;
@@ -23,6 +27,7 @@ public class KafkaConsumerService {
     @KafkaListener(topics = "sales.processor.result.v1", groupId = "my-group")
     public void consume(String message) {
         try {
+            logger.info("Message received: {}", message);
             System.out.println("Message Received: " + message);
 
             JsonNode root = objectMapper.readTree(message);
@@ -31,10 +36,10 @@ public class KafkaConsumerService {
             service.save(entity);
             lineageService.emitRecordConsumed();
 
-            System.out.println("Saved on DB: invoiceId=" + entity.getInvoiceId());
+            logger.info("Saved on DB: invoiceId={}", entity.getInvoiceId());
 
         } catch (Exception e) {
-            System.err.println("Error on Processing the message!");
+            logger.error("Error on Processing the message!");
             e.printStackTrace();
         }
     }
