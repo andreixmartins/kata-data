@@ -21,7 +21,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import com.data.kata.sales_processor_service.lineage.LineageService;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.StringReader;
 
 @Component
 public class InvoiceStreamProcessor {
@@ -226,17 +232,22 @@ public class InvoiceStreamProcessor {
 
     private String extractSellerFromSoapXml(String soapXml) {
         try {
-            JsonNode parsed = parseJson(soapXml);
-            if (parsed.isObject()) {
-                return objectMapper.writeValueAsString(parsed);
-            }
-            String normalized = parsed.isTextual() ? parsed.asText() : soapXml;
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+
+            Document doc = factory.newDocumentBuilder()
+                    .parse(new InputSource(new StringReader(soapXml)));
+
             ObjectNode seller = objectMapper.createObjectNode();
             String[] fields = {"ssn", "saleId", "sellerName", "city", "country", "totalAmount", "currency", "saleDate"};
             for (String field : fields) {
-                String extracted = extractXmlField(normalized, field);
-                if (extracted != null) {
-                    seller.put(field, extracted);
+                NodeList nodes = doc.getElementsByTagNameNS("*", field);
+                if (nodes.getLength() > 0) {
+                    String text = nodes.item(0).getTextContent().trim();
+                    if (!text.isEmpty()) {
+                        seller.put(field, text);
+                    }
                 }
             }
             return objectMapper.writeValueAsString(seller);
@@ -255,13 +266,5 @@ public class InvoiceStreamProcessor {
             logger.debug("Failed to extract field {} from payload", fieldName, e);
             return null;
         }
-    }
-
-    private String extractXmlField(String xml, String fieldName) {
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(
-            "<(?:\\w+:)?" + fieldName + ">([^<]*)</(?:\\w+:)?" + fieldName + ">"
-        );
-        java.util.regex.Matcher matcher = pattern.matcher(xml);
-        return matcher.find() ? matcher.group(1).trim() : null;
     }
 }
