@@ -1,4 +1,4 @@
-# Data Kata
+# Data Kata - Top Sales / Top Salesman
 
 Kafka Connect pipeline that watches directories for files and publishes events to Kafka topics.
 Also includes a JDBC Source connector that reads products from PostgreSQL.
