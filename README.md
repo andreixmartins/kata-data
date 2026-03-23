@@ -3,28 +3,49 @@
 Kafka Connect pipeline that watches directories for files and publishes events to Kafka topics.
 Also includes a JDBC Source connector that reads products from PostgreSQL.
 
-## Structure
 
-```
-data-processing/
-  connect/                        # Kafka Connect Docker image (SpoolDir plugin)
-  connectors/
-    file-processor/
-      backup-data-invoices/       # Default .json invoice files for testing
-      invoices/                   # Drop .json invoice files here
-      processed/                  # Files moved here after successful processing
-      error/                      # Files moved here on failure
-      invoices-file-connector.json
-    postgres-products/
-      products-jdbc-connector.json
-    webservice-processor/
-      wsdl/SalesService.wsdl      # WSDL for the sellers SOAP endpoint
-      sellers-webservice-connector.json
-      run.sh                      # Script to send seller requests and verify
-  db/
-    init/                         # Postgres init SQL (products table + sample data)
-  docker-compose.yml
-```
+<img src="KATA-DATA.png">
+
+## Technology Stack & Versions
+
+### Core Infrastructure
+- **Kafka**: Confluent Platform 7.4.0
+- **Zookeeper**: Confluent Platform 7.4.0
+- **Kafka Connect**: Confluent Platform 7.7.1
+- **Kafka UI**: provectuslabs/kafka-ui v0.7.2
+
+### Kafka Connectors
+- **SpoolDir Connector**: 2.0.65 (jcustenborder)
+- **JDBC Source Connector**: 10.7.6 (Confluent)
+- **Apache Camel CXF Kafka Connector**: 4.8.5
+  - Apache CXF: 4.0.6
+  - Undertow: 2.3.17.Final
+  - XNIO: 3.8.16.Final
+
+### SOAP Web Service
+- **Apache Camel CXF**: 4.0.6
+- **Jakarta XML SOAP API**: 3.0.2
+- **SAAJ Implementation**: 3.0.4
+
+### Databases
+- **PostgreSQL** (Products DB): 15
+- **PostgreSQL JDBC Driver**: 42.7.4
+
+### Observability & Monitoring
+- **Prometheus**: v2.55.1
+- **Grafana**: 11.4.0
+- **Loki**: 3.3.2
+- **Grafana Alloy**: v1.5.1
+- **JMX Prometheus Java Agent**: 0.20.0
+
+### Data Lineage
+- **Marquez API**: latest (0.49.0)
+- **Marquez Web**: latest (0.49.0)
+- **OpenLineage Java**: 1.22.0
+
+### Application Framework
+- **Spring Boot**: 4.0.4
+- **Java**: 25
 
 ## Requirements
 
@@ -65,6 +86,43 @@ docker compose down
 - SpoolDir watches `connectors/file-processor/invoices/` for `.json` files.
 - Each file is parsed and published as an event to `sales.raw.invoice.files.v1`.
 - Processed files move to `processed/`; failures move to `error/`.
+
+- Example of the file for Invoice
+```json
+{
+  "invoiceId": "2026-0001",
+  "issueDate": "2026-03-18",
+  "dueDate": "2026-03-25",
+  "currency": "USD",
+  "status": "PENDING",
+  "seller": {
+    "ssn": "123-45-6789",
+    "email": "billing@seller.com"
+  },
+  "buyer": {
+    "ssn": "987-65-4321",
+    "email": "accounts@buyer.com"
+  },
+  "items": [
+    {
+      "itemId": "GPU-RTX-4060",
+      "quantity": 10,
+      "unitPrice": 299.00
+    },
+    {
+      "itemId": "SSD-NVME-1TB",
+      "quantity": 1,
+      "unitPrice": 89.90
+    }
+  ],
+  "subtotal": 3089.90,
+  "discount": 100.00,
+  "total": 2989.90,
+  "paymentMethod": "BANK_TRANSFER",
+  "notes": "Thank you for your business!"
+}
+```
+
 
 ## Sellers webservice connector
 
