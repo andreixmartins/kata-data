@@ -121,7 +121,18 @@ public class LineageService {
                 ol.newSchemaDatasetFacetFieldsBuilder().name("status").type("STRING").build(),
                 ol.newSchemaDatasetFacetFieldsBuilder().name("total_amount").type("DOUBLE").build(),
                 ol.newSchemaDatasetFacetFieldsBuilder().name("original_status").type("STRING").build(),
-                ol.newSchemaDatasetFacetFieldsBuilder().name("raw_data").type("STRING").build()
+                ol.newSchemaDatasetFacetFieldsBuilder().name("seller_info.seller_name").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("seller_info.city").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("seller_info.country").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("seller_info.sale_date").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("seller_info.seller_lookup_status").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("raw_data.invoiceId").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("raw_data.issueDate").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("raw_data.dueDate").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("raw_data.currency").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("raw_data.status").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("raw_data.total").type("DOUBLE").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("raw_data.items").type("STRING").build()
         );
         return ol.newInputDatasetBuilder()
                 .namespace(KAFKA_NAMESPACE)
