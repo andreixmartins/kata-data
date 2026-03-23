@@ -11,6 +11,7 @@
             <xsd:element name="SubmitSellerRequest">
                 <xsd:complexType>
                     <xsd:sequence>
+                        <xsd:element name="ssn" type="xsd:string"/>
                         <xsd:element name="saleId" type="xsd:string"/>
                         <xsd:element name="sellerName" type="xsd:string"/>
                         <xsd:element name="city" type="xsd:string"/>

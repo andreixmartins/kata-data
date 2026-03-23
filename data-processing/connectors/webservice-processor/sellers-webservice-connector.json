@@ -10,6 +10,8 @@
     "camel.source.endpoint.portName": "{http://sales.com/wsdl}SalesPort",
     "camel.source.endpoint.dataFormat": "RAW",
     "camel.source.contentLogLevel": "INFO",
+    "transforms": "bodyToString",
+    "transforms.bodyToString.type": "com.data.kata.connect.transforms.BodyToString",
     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
     "value.converter": "org.apache.kafka.connect.storage.StringConverter"
   }

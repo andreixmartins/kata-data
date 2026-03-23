@@ -115,10 +115,13 @@ public class LineageService {
     private OpenLineage.OutputDataset buildOutputDataset() {
         List<OpenLineage.SchemaDatasetFacetFields> fields = List.of(
                 ol.newSchemaDatasetFacetFieldsBuilder().name("id").type("LONG").build(),
-                ol.newSchemaDatasetFacetFieldsBuilder().name("city").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("invoice_id").type("STRING").build(),
                 ol.newSchemaDatasetFacetFieldsBuilder().name("salesman").type("STRING").build(),
-                ol.newSchemaDatasetFacetFieldsBuilder().name("source").type("STRING").build(),
-                ol.newSchemaDatasetFacetFieldsBuilder().name("total_amount").type("DOUBLE").build()
+                ol.newSchemaDatasetFacetFieldsBuilder().name("city").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("country").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("status").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("total_amount").type("DOUBLE").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("processed_at").type("LONG").build()
         );
         return ol.newOutputDatasetBuilder()
                 .namespace(PG_NAMESPACE)
