@@ -4,7 +4,7 @@ Kafka Connect pipeline that watches directories for files and publishes events t
 Also includes a JDBC Source connector that reads products from PostgreSQL.
 
 
-<img src="KATA-DATA.png">
+<img src="KATA-DATA2.png">
 
 ## Technology Stack & Versions
 
