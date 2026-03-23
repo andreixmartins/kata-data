@@ -108,14 +108,13 @@ Reads hardware products (e.g., CPUs, RAM, GPUs) from PostgreSQL and publishes th
 
 ### Flow (macro)
 
-We have **three sources** (FS, DB, WS). All of them feed a **Kafka Streams** application.
-After processing, Kafka Connect publishes the results through **our connector**.
+We have **three sources** (FS, DB, WS) feeding Kafka topics via **Kafka Connect**. A **Kafka Streams** application enriches and joins the data, then publishes results to an output topic consumed by the **Consumer App**.
 
-1. **FS source**: file connector publishes raw events to Kafka.
-2. **DB source**: JDBC Source connector publishes product rows to Kafka.
-3. **WS source**: SOAP sellers endpoint publishes to Kafka.
-4. **Kafka Streams** consumes these source topics and produces a processed topic.
-5. **Kafka Connect** reads the processed topic and delivers it via **our connector** (sink).
+1. **FS source** → SpoolDir connector publishes invoice JSON files to `sales.raw.invoice.files.v1`.
+2. **DB source** → JDBC Source connector publishes product rows to `products.raw.postgres.v1`.
+3. **WS source** → Camel CXF connector publishes seller SOAP messages to `sales.raw.sellers.webservice.v1`.
+4. **Kafka Streams** (`sales-processor-service`) consumes invoices and sellers, enriches invoice items with product data from a materialized state store (fed by `products.raw.postgres.v1`), and produces to `sales.processor.result.v1`.
+5. **Consumer App** reads `sales.processor.result.v1` and persists enriched results to its own PostgreSQL database.
 
 ### Diagram
 
