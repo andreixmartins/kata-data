@@ -5,6 +5,7 @@ import io.openlineage.client.OpenLineageClient;
 import io.openlineage.client.transports.HttpConfig;
 import io.openlineage.client.transports.HttpTransport;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,6 +71,25 @@ public class LineageService {
             logger.info("OpenLineage START emitted for job '{}'", JOB_NAME);
         } catch (Exception e) {
             logger.warn("Failed to emit OpenLineage START event: {}", e.getMessage());
+        }
+    }
+
+    @PreDestroy
+    public void emitStop() {
+        if (client == null) return;
+        try {
+            OpenLineage.RunEvent event = ol.newRunEventBuilder()
+                    .eventType(OpenLineage.RunEvent.EventType.COMPLETE)
+                    .eventTime(ZonedDateTime.now())
+                    .run(ol.newRunBuilder().runId(runId).build())
+                    .job(ol.newJobBuilder().namespace(namespace).name(JOB_NAME).build())
+                    .inputs(List.of(buildInputDataset()))
+                    .outputs(List.of(buildOutputDataset()))
+                    .build();
+            client.emit(event);
+            logger.info("OpenLineage COMPLETE emitted for job '{}'", JOB_NAME);
+        } catch (Exception e) {
+            logger.warn("Failed to emit OpenLineage COMPLETE event: {}", e.getMessage());
         }
     }
 
