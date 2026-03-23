@@ -21,9 +21,9 @@ public class LineageService {
     private static final Logger logger = LoggerFactory.getLogger(LineageService.class);
 
     private static final URI PRODUCER = URI.create("https://github.com/andreixmartins/kata-data");
-    private static final String KAFKA_NAMESPACE = "kafka://kafka:29092";
+    private static final String KAFKA_NAMESPACE = "kafka-pipeline";
     private static final String INPUT_TOPIC = "sales.processor.result.v1";
-    private static final String PG_NAMESPACE = "postgresql://postgres:5432";
+    private static final String PG_NAMESPACE = "kafka-pipeline";
     private static final String OUTPUT_TABLE = "mydb.result_entity";
     private static final String JOB_NAME = "result-consumer";
 

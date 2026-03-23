@@ -139,7 +139,7 @@ services:
       LOGGING_LEVEL_COM_DATA_KATA_SALES_PROCESSOR_SERVICE: DEBUG
       LOGGING_LEVEL_ORG_APACHE_KAFKA_STREAMS: INFO
       OPENLINEAGE_URL: "http://marquez-api:5000"
-      OPENLINEAGE_NAMESPACE: "sales-processor"
+      OPENLINEAGE_NAMESPACE: "kafka-pipeline"
     volumes:
       - /tmp/kafka-streams
     restart: unless-stopped
