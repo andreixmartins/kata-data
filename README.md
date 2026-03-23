@@ -197,3 +197,47 @@ docker exec -it <kafka-container> kafka-console-consumer \
   --topic sales.raw.invoice.files.v1 \
   --from-beginning
 ```
+
+## Consumer Application
+
+The Consumer is a Springboot application that consumes enriched sales data from kafta and exposes it via REST API endpoints.
+
+### What it does
+
+- **Comsumes** from `sales.processor.result.v1` topic (enriched invoices from Kafka Streams)
+- **Persists** sales data on the Postgres database
+- **Exposes** REST API endpoints for querying sales data
+- **Tracks** data lineage using OpenLineage for observability
+
+### How to run
+
+From the `consumer/` directory:
+
+```bash
+docker compose up --build
+```
+
+The consumer will:
+- Start PostgreSQL on port 5434
+- Start the Springboot app on port 8082
+- Connect to the Kafka cluster from the main docker-compose stack
+- Begin consuming from sales.processor.result.v1 automatically.
+
+To stop:
+
+
+docker compose down -v  # removes values
+docker compose down     # keep the data
+
+Endpoints
+
+Base URL: http://localhost:8082
+
+
+| Endpoint                          | Method                | Description                               |
+|-----------------------------------|-----------------------|-------------------------------------------|
+| **/results**                      | GET                   | Return all consumed sales record          |
+| **/results/top-salesman-country** | GET                   | Returns top salesmen aggregated by country|
+| **/results/top-sales-per-city**   | GET                   | Returns total sales aggregated by city    |
+
+
