@@ -5,6 +5,7 @@ import io.openlineage.client.OpenLineageClient;
 import io.openlineage.client.transports.HttpConfig;
 import io.openlineage.client.transports.HttpTransport;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,8 @@ public class LineageService {
     private static final URI PRODUCER = URI.create("https://github.com/andreixmartins/kata-data");
     private static final String KAFKA_NAMESPACE = "kafka-pipeline";
     private static final String INPUT_TOPIC = "sales.raw.invoice.files.v1";
+    private static final String SELLERS_TOPIC = "sales.raw.sellers.webservice.v1";
+    private static final String PRODUCTS_TOPIC = "products.raw.postgres.v1";
     private static final String OUTPUT_TOPIC = "sales.processor.result.v1";
     private static final String JOB_NAME = "invoice-stream-processor";
 
@@ -63,13 +66,32 @@ public class LineageService {
                     .eventTime(ZonedDateTime.now())
                     .run(ol.newRunBuilder().runId(runId).build())
                     .job(ol.newJobBuilder().namespace(namespace).name(JOB_NAME).build())
-                    .inputs(List.of(buildInputDataset()))
+                    .inputs(List.of(buildInvoiceInputDataset(), buildSellersInputDataset(), buildProductsInputDataset()))
                     .outputs(List.of(buildOutputDataset()))
                     .build();
             client.emit(event);
             logger.info("OpenLineage START emitted for job '{}'", JOB_NAME);
         } catch (Exception e) {
             logger.warn("Failed to emit OpenLineage START event: {}", e.getMessage());
+        }
+    }
+
+    @PreDestroy
+    public void emitStop() {
+        if (client == null) return;
+        try {
+            OpenLineage.RunEvent event = ol.newRunEventBuilder()
+                    .eventType(OpenLineage.RunEvent.EventType.COMPLETE)
+                    .eventTime(ZonedDateTime.now())
+                    .run(ol.newRunBuilder().runId(runId).build())
+                    .job(ol.newJobBuilder().namespace(namespace).name(JOB_NAME).build())
+                    .inputs(List.of(buildInvoiceInputDataset(), buildSellersInputDataset(), buildProductsInputDataset()))
+                    .outputs(List.of(buildOutputDataset()))
+                    .build();
+            client.emit(event);
+            logger.info("OpenLineage COMPLETE emitted for job '{}'", JOB_NAME);
+        } catch (Exception e) {
+            logger.warn("Failed to emit OpenLineage COMPLETE event: {}", e.getMessage());
         }
     }
 
@@ -81,8 +103,10 @@ public class LineageService {
                     .eventTime(ZonedDateTime.now())
                     .run(ol.newRunBuilder().runId(runId).build())
                     .job(ol.newJobBuilder().namespace(namespace).name(JOB_NAME).build())
-                    .inputs(List.of(ol.newInputDatasetBuilder()
-                            .namespace(KAFKA_NAMESPACE).name(INPUT_TOPIC).build()))
+                    .inputs(List.of(
+                            ol.newInputDatasetBuilder().namespace(KAFKA_NAMESPACE).name(INPUT_TOPIC).build(),
+                            ol.newInputDatasetBuilder().namespace(KAFKA_NAMESPACE).name(SELLERS_TOPIC).build(),
+                            ol.newInputDatasetBuilder().namespace(KAFKA_NAMESPACE).name(PRODUCTS_TOPIC).build()))
                     .outputs(List.of(ol.newOutputDatasetBuilder()
                             .namespace(KAFKA_NAMESPACE).name(OUTPUT_TOPIC).build()))
                     .build();
@@ -93,7 +117,7 @@ public class LineageService {
         }
     }
 
-    private OpenLineage.InputDataset buildInputDataset() {
+    private OpenLineage.InputDataset buildInvoiceInputDataset() {
         List<OpenLineage.SchemaDatasetFacetFields> fields = List.of(
                 ol.newSchemaDatasetFacetFieldsBuilder().name("invoiceId").type("STRING").build(),
                 ol.newSchemaDatasetFacetFieldsBuilder().name("issueDate").type("STRING").build(),
@@ -108,6 +132,41 @@ public class LineageService {
         return ol.newInputDatasetBuilder()
                 .namespace(KAFKA_NAMESPACE)
                 .name(INPUT_TOPIC)
+                .facets(ol.newDatasetFacetsBuilder()
+                        .schema(ol.newSchemaDatasetFacetBuilder().fields(fields).build())
+                        .build())
+                .build();
+    }
+
+    private OpenLineage.InputDataset buildSellersInputDataset() {
+        List<OpenLineage.SchemaDatasetFacetFields> fields = List.of(
+                ol.newSchemaDatasetFacetFieldsBuilder().name("saleId").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("sellerName").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("city").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("country").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("totalAmount").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("currency").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("saleDate").type("STRING").build()
+        );
+        return ol.newInputDatasetBuilder()
+                .namespace(KAFKA_NAMESPACE)
+                .name(SELLERS_TOPIC)
+                .facets(ol.newDatasetFacetsBuilder()
+                        .schema(ol.newSchemaDatasetFacetBuilder().fields(fields).build())
+                        .build())
+                .build();
+    }
+
+    private OpenLineage.InputDataset buildProductsInputDataset() {
+        List<OpenLineage.SchemaDatasetFacetFields> fields = List.of(
+                ol.newSchemaDatasetFacetFieldsBuilder().name("sku").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("name").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("category").type("STRING").build(),
+                ol.newSchemaDatasetFacetFieldsBuilder().name("price_usd").type("DOUBLE").build()
+        );
+        return ol.newInputDatasetBuilder()
+                .namespace(KAFKA_NAMESPACE)
+                .name(PRODUCTS_TOPIC)
                 .facets(ol.newDatasetFacetsBuilder()
                         .schema(ol.newSchemaDatasetFacetBuilder().fields(fields).build())
                         .build())
